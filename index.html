@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Gestor de Órdenes de Servicio</title>
+
+<!-- PWA: manifest e iconos -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#161d2e">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+<!-- iOS: soporte para "Añadir a pantalla de inicio" -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Órdenes">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --bg-1:#0f1420;
+    --bg-2:#161d2e;
+    --panel:#1c2438;
+    --panel-2:#222c45;
+    --border:#2c3752;
+    --text:#e8ecf7;
+    --text-dim:#9aa5c0;
+    --accent:#4fd1c5;
+    --accent-2:#38b2ac;
+    --accent-grad: linear-gradient(135deg,#4fd1c5,#5b8def);
+    --abierto:#2fbf71;
+    --cerrado:#e05263;
+    --asignado:#5b8def;
+    --pendiente:#f5a623;
+    --radius:14px;
+    --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background: radial-gradient(circle at top left, #1a2338, var(--bg-1) 60%);
+    color:var(--text);
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .container{
+    max-width:900px;
+    margin:0 auto;
+    padding:24px 18px 40px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:22px;
+  }
+  header h1{
+    font-size:1.6rem;
+    margin:0 0 4px;
+    background:var(--accent-grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  header p{
+    margin:0;
+    color:var(--text-dim);
+    font-size:0.85rem;
+  }
+  .btn-new{
+    width:100%;
+    padding:20px;
+    font-size:1.15rem;
+    font-weight:700;
+    border:none;
+    border-radius:var(--radius);
+    background:var(--accent-grad);
+    color:#08131a;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease;
+    margin-bottom:16px;
+  }
+  .btn-new:hover{ transform:translateY(-2px); box-shadow:0 14px 34px rgba(79,209,197,0.25); }
+  .btn-new:active{ transform:translateY(0); }
+
+  .search-bar{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .search-bar input{
+    flex:1;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    font-size:0.95rem;
+  }
+  .search-bar input:focus{ outline:none; border-color:var(--accent); }
+
+  .toolbar{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .btn-ghost{
+    padding:10px 14px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    cursor:pointer;
+    font-size:0.85rem;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .btn-ghost:hover{ background:var(--panel-2); border-color:var(--accent); }
+
+  .filters{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .filters-left{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .sort-select{
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    font-size:0.8rem;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .sort-select:focus{ outline:none; border-color:var(--accent); }
+  .filter-btn{
+    padding:8px 14px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text-dim);
+    cursor:pointer;
+    font-size:0.82rem;
+    font-weight:600;
+    transition:all .15s ease;
+  }
+  .filter-btn.active{
+    background:var(--accent-grad);
+    color:#08131a;
+    border-color:transparent;
+  }
+
+  .empty-state{
+    text-align:center;
+    color:var(--text-dim);
+    padding:40px 10px;
+    border:1px dashed var(--border);
+    border-radius:var(--radius);
+    font-size:0.9rem;
+  }
+
+  .order-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:12px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.2);
+    border-left:5px solid var(--accent);
+    position:relative;
+  }
+  .order-card.status-Abierto{ border-left-color:var(--abierto); }
+  .order-card.status-Cerrado{ border-left-color:var(--cerrado); }
+  .order-card.status-Asignado{ border-left-color:var(--asignado); }
+  .order-card.status-Pendiente{ border-left-color:var(--pendiente); }
+
+  .order-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .order-ticket{
+    font-size:1.05rem;
+    font-weight:700;
+    cursor:pointer;
+    text-decoration:underline dotted;
+    text-underline-offset:3px;
+    transition:color .15s ease;
+  }
+  .order-ticket:hover{ color:var(--accent); }
+  .clickable-field{
+    cursor:pointer;
+    text-decoration:underline dotted;
+    text-underline-offset:2px;
+    transition:color .15s ease;
+  }
+  .clickable-field:hover{ color:var(--accent); }
+  .order-time{
+    font-size:0.72rem;
+    color:var(--text-dim);
+    white-space:nowrap;
+  }
+  .badge{
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:0.72rem;
+    font-weight:700;
+    color:#08131a;
+  }
+  .badge.status-Abierto{ background:var(--abierto); }
+  .badge.status-Cerrado{ background:var(--cerrado); color:#fff; }
+  .badge.status-Asignado{ background:var(--asignado); color:#fff; }
+  .badge.status-Pendiente{ background:var(--pendiente); }
+
+  .order-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px 14px;
+    font-size:0.85rem;
+    margin-bottom:10px;
+  }
+  .order-grid div span{
+    color:var(--text-dim);
+    display:block;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+  }
+  .order-obs{
+    font-size:0.85rem;
+    color:var(--text);
+    background:var(--panel-2);
+    padding:8px 10px;
+    border-radius:8px;
+    margin-bottom:10px;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .order-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .order-actions button{
+    padding:7px 12px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text);
+    font-size:0.78rem;
+    cursor:pointer;
+  }
+  .order-actions button:hover{ border-color:var(--accent); color:var(--accent); }
+  .order-actions .danger:hover{ border-color:var(--cerrado); color:var(--cerrado); }
+
+  /* Modal */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(6,10,20,0.7);
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:30px 14px;
+    overflow-y:auto;
+    z-index:100;
+  }
+  .modal-overlay.hidden{ display:none; }
+  .modal{
+    background:var(--bg-2);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px;
+    width:100%;
+    max-width:520px;
+    box-shadow:var(--shadow);
+  }
+  .modal h2{
+    margin-top:0;
+    font-size:1.2rem;
+    color:var(--accent);
+  }
+  .form-row{ margin-bottom:12px; }
+  .form-row label{
+    display:block;
+    font-size:0.78rem;
+    color:var(--text-dim);
+    margin-bottom:5px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+  }
+  .form-row input,
+  .form-row select,
+  .form-row textarea{
+    width:100%;
+    padding:10px 12px;
+    border-radius:9px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    font-size:0.9rem;
+    font-family:inherit;
+  }
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus{ outline:none; border-color:var(--accent); }
+  .form-row textarea{ resize:vertical; min-height:70px; }
+  .hint{ font-size:0.72rem; color:var(--accent); margin-top:4px; }
+
+  .modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+  }
+  .modal-actions button{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    font-weight:700;
+    cursor:pointer;
+    font-size:0.9rem;
+  }
+  .btn-save{ background:var(--accent-grad); color:#08131a; }
+  .btn-cancel{ background:var(--panel); color:var(--text); border:1px solid var(--border) !important; }
+
+  .related-list{
+    max-height:50vh;
+    overflow-y:auto;
+    margin-top:6px;
+  }
+  .related-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    margin-bottom:8px;
+    background:var(--panel);
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .related-item:hover{
+    border-color:var(--accent);
+    background:var(--panel-2);
+  }
+  .related-item .ri-main{
+    font-weight:700;
+    font-size:0.9rem;
+  }
+  .related-item .ri-sub{
+    font-size:0.72rem;
+    color:var(--text-dim);
+    margin-top:2px;
+  }
+  .related-count{
+    font-size:0.8rem;
+    color:var(--text-dim);
+    margin-bottom:10px;
+  }
+
+  footer{
+    margin-top:30px;
+    padding-top:18px;
+    border-top:1px solid var(--border);
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  footer .file-label{
+    padding:10px 14px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text);
+    cursor:pointer;
+    font-size:0.85rem;
+  }
+  footer .file-label:hover{ border-color:var(--accent); color:var(--accent); }
+  footer input[type=file]{ display:none; }
+
+  .toast{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--panel-2);
+    border:1px solid var(--accent);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:0.85rem;
+    opacity:0;
+    pointer-events:none;
+    transition:all .25s ease;
+    z-index:200;
+    box-shadow:var(--shadow);
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  @media(max-width:480px){
+    .order-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🛠️ Gestor de Órdenes de Servicio</h1>
+    <p>100% local · offline · tus datos se guardan solo en este navegador</p>
+  </header>
+
+  <button class="btn-new" id="btnNewOrder">➕ Nueva Orden de Servicio</button>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar por ticket, tienda, equipo, coordinador, falla...">
+  </div>
+
+  <div class="toolbar">
+    <button class="btn-ghost" id="btnCopyOpen">📋 Copiar Abiertos</button>
+  </div>
+
+  <div class="filters" id="filters">
+    <div class="filters-left">
+      <button class="filter-btn active" data-filter="Todos">Todos</button>
+      <button class="filter-btn" data-filter="Abierto">Abiertos</button>
+      <button class="filter-btn" data-filter="Asignado">Asignados</button>
+      <button class="filter-btn" data-filter="Cerrado">Cerrados</button>
+      <button class="filter-btn" data-filter="Pendiente">Pendientes</button>
+    </div>
+    <select class="sort-select" id="sortSelect">
+      <option value="fecha_desc">🕒 Fecha: más reciente</option>
+      <option value="fecha_asc">🕒 Fecha: más antiguo</option>
+      <option value="alfa_asc">🔤 Alfabético: A-Z</option>
+      <option value="alfa_desc">🔤 Alfabético: Z-A</option>
+    </select>
+  </div>
+
+  <div id="ordersList"></div>
+
+  <footer>
+    <button class="file-label" id="btnInstallApp" style="display:none; background:var(--accent-grad); color:#08131a; border-color:transparent; font-weight:700;">📲 Instalar App</button>
+    <button class="file-label" id="btnExport">⬇️ Exportar JSON</button>
+    <label class="file-label" for="importFile">⬆️ Importar JSON</label>
+    <input type="file" id="importFile" accept="application/json">
+  </footer>
+</div>
+
+<!-- Modal Nueva Orden -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Nueva Orden de Servicio</h2>
+    <form id="orderForm">
+      <div class="form-row">
+        <label>Ticket</label>
+        <input type="text" id="f_ticket" required placeholder="Ej. 12345-2026-001">
+        <div class="hint" id="autofillHint" style="display:none;">✅ Tienda y Coordinador autocompletados según ticket previo</div>
+      </div>
+      <div class="form-row">
+        <label>Tienda</label>
+        <input type="text" id="f_tienda" required placeholder="Nombre / número de tienda">
+      </div>
+      <div class="form-row">
+        <label>Status</label>
+        <select id="f_status" required>
+          <option value="Abierto">Abierto</option>
+          <option value="Asignado">Asignado</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Cerrado">Cerrado</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Equipo</label>
+        <select id="f_equipo" required>
+          <option value="">Selecciona un equipo</option>
+          <option value="Merrychef">Merrychef</option>
+          <option value="Bunn">Bunn</option>
+          <option value="Nuvu">Nuvu</option>
+          <option value="Molino">Molino</option>
+          <option value="Licuadora">Licuadora</option>
+          <option value="Turbochef">Turbochef</option>
+          <option value="Báscula">Báscula</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Coordinador</label>
+        <input type="text" id="f_coordinador" required placeholder="Nombre del coordinador">
+      </div>
+      <div class="form-row">
+        <label>Falla</label>
+        <input type="text" id="f_falla" required placeholder="Descripción breve de la falla">
+      </div>
+      <div class="form-row">
+        <label>Observaciones</label>
+        <textarea id="f_observaciones" placeholder="Observaciones adicionales..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="btnCancel">Cancelar</button>
+        <button type="submit" class="btn-save" id="btnSaveLabel">Guardar Orden</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Lista Relacionada (Tienda / Coordinador) -->
+<div class="modal-overlay hidden" id="relatedModalOverlay">
+  <div class="modal">
+    <h2 id="relatedModalTitle">Órdenes relacionadas</h2>
+    <div class="related-count" id="relatedCount"></div>
+    <div class="related-list" id="relatedList"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" id="btnCloseRelated">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'ordenes_servicio_data_v1';
+  let orders = [];
+  let currentFilter = 'Todos';
+  let searchTerm = '';
+  let editingId = null;
+  let sortMode = 'fecha_desc';
+
+  // ---------- Persistencia ----------
+  function loadOrders(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      orders = raw ? JSON.parse(raw) : [];
+    }catch(e){
+      orders = [];
+    }
+  }
+  function saveOrders(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+  }
+
+  // ---------- Utilidades ----------
+  function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+  function fmtTime(iso){
+    const d = new Date(iso);
+    return d.toLocaleString('es-MX', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+  }
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+  function copyText(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(
+        ()=> showToast('Copiado al portapapeles ✅'),
+        ()=> fallbackCopy(text)
+      );
+    } else {
+      fallbackCopy(text);
+    }
+  }
+  function fallbackCopy(text){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try{
+      document.execCommand('copy');
+      showToast('Copiado al portapapeles ✅');
+    }catch(e){
+      showToast('No se pudo copiar automáticamente');
+    }
+    document.body.removeChild(ta);
+  }
+
+  // ---------- Render ----------
+  function matchesSearch(o, term){
+    if(!term) return true;
+    const t = term.toLowerCase();
+    return [o.ticket, o.tienda, o.equipo, o.coordinador, o.falla, o.observaciones, o.status]
+      .some(v => (v||'').toLowerCase().includes(t));
+  }
+
+  function sortOrders(list, mode){
+    const arr = list.slice();
+    switch(mode){
+      case 'fecha_asc':
+        arr.sort((a,b)=> new Date(a.timestamp) - new Date(b.timestamp));
+        break;
+      case 'alfa_asc':
+        arr.sort((a,b)=> (a.ticket||'').localeCompare(b.ticket||'', 'es', {numeric:true, sensitivity:'base'}));
+        break;
+      case 'alfa_desc':
+        arr.sort((a,b)=> (b.ticket||'').localeCompare(a.ticket||'', 'es', {numeric:true, sensitivity:'base'}));
+        break;
+      case 'fecha_desc':
+      default:
+        arr.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+        break;
+    }
+    return arr;
+  }
+
+  function render(){
+    const list = document.getElementById('ordersList');
+    let filtered = sortOrders(orders, sortMode);
+
+    if(currentFilter !== 'Todos'){
+      filtered = filtered.filter(o => o.status === currentFilter);
+    }
+    if(searchTerm){
+      filtered = filtered.filter(o => matchesSearch(o, searchTerm));
+    }
+
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="empty-state">No hay órdenes de servicio que coincidan.</div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(o => `
+      <div class="order-card status-${o.status}" data-id="${o.id}">
+        <div class="order-top">
+          <div>
+            <div class="order-ticket btn-edit" data-id="${o.id}" title="Toca para editar">🎫 ${escapeHtml(o.ticket)}</div>
+            <span class="badge status-${o.status}">${o.status}</span>
+          </div>
+          <div class="order-time">${fmtTime(o.timestamp)}${o.editedAt ? '<br>✏️ editado ' + fmtTime(o.editedAt) : ''}</div>
+        </div>
+        <div class="order-grid">
+          <div><span>Tienda</span><span class="clickable-field btn-tienda" data-value="${escapeHtml(o.tienda)}" title="Ver todos los tickets de esta tienda">${escapeHtml(o.tienda)}</span></div>
+          <div><span>Equipo</span>${escapeHtml(o.equipo)}</div>
+          <div><span>Coordinador</span><span class="clickable-field btn-coordinador" data-value="${escapeHtml(o.coordinador)}" title="Ver todos los tickets de este coordinador">${escapeHtml(o.coordinador)}</span></div>
+          <div><span>Falla</span>${escapeHtml(o.falla)}</div>
+        </div>
+        ${o.observaciones ? `<div class="order-obs">${escapeHtml(o.observaciones)}</div>` : ''}
+        <div class="order-actions">
+          <button class="btn-copy" data-id="${o.id}">📋 Copiar</button>
+          <button class="danger btn-delete" data-id="${o.id}">🗑️ Eliminar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str){
+    if(str === undefined || str === null) return '';
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // ---------- Autocompletado por prefijo de Ticket ----------
+  function autofillByTicket(ticketValue){
+    const prefix = (ticketValue || '').trim().slice(0,5);
+    if(prefix.length < 5) return null;
+    const matches = orders
+      .filter(o => (o.ticket || '').slice(0,5) === prefix)
+      .sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+    return matches.length ? matches[0] : null;
+  }
+
+  // ---------- Eventos: Modal ----------
+  const modalOverlay = document.getElementById('modalOverlay');
+  const orderForm = document.getElementById('orderForm');
+  const autofillHint = document.getElementById('autofillHint');
+
+  function openModal(){
+    editingId = null;
+    orderForm.reset();
+    autofillHint.style.display = 'none';
+    document.getElementById('modalTitle').textContent = 'Nueva Orden de Servicio';
+    document.getElementById('btnSaveLabel').textContent = 'Guardar Orden';
+    modalOverlay.classList.remove('hidden');
+    setTimeout(()=> document.getElementById('f_ticket').focus(), 50);
+  }
+
+  function openModalForEdit(id){
+    const o = orders.find(x => x.id === id);
+    if(!o) return;
+    editingId = id;
+    orderForm.reset();
+    autofillHint.style.display = 'none';
+    document.getElementById('modalTitle').textContent = 'Editar Orden de Servicio';
+    document.getElementById('btnSaveLabel').textContent = 'Guardar Cambios';
+
+    document.getElementById('f_ticket').value = o.ticket;
+    document.getElementById('f_tienda').value = o.tienda;
+    document.getElementById('f_status').value = o.status;
+    document.getElementById('f_equipo').value = o.equipo;
+    document.getElementById('f_coordinador').value = o.coordinador;
+    document.getElementById('f_falla').value = o.falla;
+    document.getElementById('f_observaciones').value = o.observaciones || '';
+
+    modalOverlay.classList.remove('hidden');
+    setTimeout(()=> document.getElementById('f_ticket').focus(), 50);
+  }
+
+  function closeModal(){
+    modalOverlay.classList.add('hidden');
+    editingId = null;
+  }
+
+  document.getElementById('btnNewOrder').addEventListener('click', openModal);
+  document.getElementById('btnCancel').addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (e)=>{
+    if(e.target === modalOverlay) closeModal();
+  });
+
+  document.getElementById('f_ticket').addEventListener('input', (e)=>{
+    const match = autofillByTicket(e.target.value);
+    if(match){
+      document.getElementById('f_tienda').value = match.tienda;
+      document.getElementById('f_coordinador').value = match.coordinador;
+      autofillHint.style.display = 'block';
+    } else {
+      autofillHint.style.display = 'none';
+    }
+  });
+
+  orderForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
+
+    const formValues = {
+      ticket: document.getElementById('f_ticket').value.trim(),
+      tienda: document.getElementById('f_tienda').value.trim(),
+      status: document.getElementById('f_status').value,
+      equipo: document.getElementById('f_equipo').value,
+      coordinador: document.getElementById('f_coordinador').value.trim(),
+      falla: document.getElementById('f_falla').value.trim(),
+      observaciones: document.getElementById('f_observaciones').value.trim()
+    };
+
+    if(editingId){
+      const idx = orders.findIndex(o => o.id === editingId);
+      if(idx !== -1){
+        orders[idx] = {
+          ...orders[idx],
+          ...formValues,
+          editedAt: new Date().toISOString()
+        };
+      }
+      saveOrders();
+      render();
+      closeModal();
+      showToast('Orden actualizada ✏️');
+    } else {
+      const order = {
+        id: uid(),
+        ...formValues,
+        timestamp: new Date().toISOString()
+      };
+      orders.push(order);
+      saveOrders();
+      render();
+      closeModal();
+      showToast('Orden de servicio guardada ✅');
+    }
+  });
+
+  // ---------- Búsqueda y filtros ----------
+  document.getElementById('searchInput').addEventListener('input', (e)=>{
+    searchTerm = e.target.value;
+    render();
+  });
+
+  document.getElementById('filters').addEventListener('click', (e)=>{
+    const btn = e.target.closest('.filter-btn');
+    if(!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render();
+  });
+
+  document.getElementById('sortSelect').addEventListener('change', (e)=>{
+    sortMode = e.target.value;
+    render();
+  });
+
+  // ---------- Modal de lista relacionada (Tienda / Coordinador) ----------
+  const relatedModalOverlay = document.getElementById('relatedModalOverlay');
+  const relatedModalTitle = document.getElementById('relatedModalTitle');
+  const relatedCount = document.getElementById('relatedCount');
+  const relatedList = document.getElementById('relatedList');
+
+  function openRelatedList(field, value){
+    const matches = orders
+      .filter(o => (o[field] || '').trim().toLowerCase() === (value || '').trim().toLowerCase())
+      .sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+
+    const label = field === 'tienda' ? 'Tienda' : 'Coordinador';
+    relatedModalTitle.textContent = `${label}: ${value}`;
+    relatedCount.textContent = `${matches.length} orden(es) encontrada(s)`;
+
+    relatedList.innerHTML = matches.map(o => `
+      <div class="related-item btn-related-open" data-id="${o.id}">
+        <div>
+          <div class="ri-main">🎫 ${escapeHtml(o.ticket)} · ${escapeHtml(o.equipo)}</div>
+          <div class="ri-sub">${escapeHtml(o.falla)} · ${fmtTime(o.timestamp)}</div>
+        </div>
+        <span class="badge status-${o.status}">${o.status}</span>
+      </div>
+    `).join('') || '<div class="empty-state">Sin resultados</div>';
+
+    relatedModalOverlay.classList.remove('hidden');
+  }
+
+  function closeRelatedModal(){
+    relatedModalOverlay.classList.add('hidden');
+  }
+
+  document.getElementById('btnCloseRelated').addEventListener('click', closeRelatedModal);
+  relatedModalOverlay.addEventListener('click', (e)=>{
+    if(e.target === relatedModalOverlay) closeRelatedModal();
+  });
+
+  relatedList.addEventListener('click', (e)=>{
+    const item = e.target.closest('.btn-related-open');
+    if(!item) return;
+    closeRelatedModal();
+    openModalForEdit(item.dataset.id);
+  });
+
+  // ---------- Acciones sobre la lista (copiar / eliminar) ----------
+  document.getElementById('ordersList').addEventListener('click', (e)=>{
+    const copyBtn = e.target.closest('.btn-copy');
+    const delBtn = e.target.closest('.btn-delete');
+    const editTicket = e.target.closest('.btn-edit');
+    const tiendaBtn = e.target.closest('.btn-tienda');
+    const coordBtn = e.target.closest('.btn-coordinador');
+
+    if(editTicket){
+      openModalForEdit(editTicket.dataset.id);
+      return;
+    }
+
+    if(tiendaBtn){
+      openRelatedList('tienda', tiendaBtn.dataset.value);
+      return;
+    }
+
+    if(coordBtn){
+      openRelatedList('coordinador', coordBtn.dataset.value);
+      return;
+    }
+
+    if(copyBtn){
+      const o = orders.find(x => x.id === copyBtn.dataset.id);
+      if(o){
+        const text =
+`Ticket: ${o.ticket}
+Tienda: ${o.tienda}
+Equipo: ${o.equipo}
+Coordinador: ${o.coordinador}
+Falla: ${o.falla}
+Status: ${o.status}
+Observaciones: ${o.observaciones || '-'}`;
+        copyText(text);
+      }
+    }
+
+    if(delBtn){
+      const o = orders.find(x => x.id === delBtn.dataset.id);
+      if(o && confirm(`¿Eliminar la orden con ticket "${o.ticket}"?`)){
+        orders = orders.filter(x => x.id !== o.id);
+        saveOrders();
+        render();
+        showToast('Orden eliminada 🗑️');
+      }
+    }
+  });
+
+  // ---------- Copiar todos los Abiertos ----------
+  document.getElementById('btnCopyOpen').addEventListener('click', ()=>{
+    const abiertos = orders
+      .filter(o => o.status === 'Abierto')
+      .sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+
+    if(abiertos.length === 0){
+      showToast('No hay órdenes con status Abierto');
+      return;
+    }
+
+    const text = abiertos.map(o =>
+`Ticket: ${o.ticket}
+Tienda: ${o.tienda}
+Equipo: ${o.equipo}
+Coordinador: ${o.coordinador}
+Falla: ${o.falla}`
+    ).join('\n\n---\n\n');
+
+    copyText(text);
+  });
+
+  // ---------- Exportar / Importar JSON ----------
+  document.getElementById('btnExport').addEventListener('click', ()=>{
+    const dataStr = JSON.stringify(orders, null, 2);
+    const blob = new Blob([dataStr], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const fecha = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = `ordenes_servicio_${fecha}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Archivo JSON exportado ⬇️');
+  });
+
+  document.getElementById('importFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      try{
+        const imported = JSON.parse(ev.target.result);
+        if(!Array.isArray(imported)) throw new Error('Formato inválido');
+
+        const replace = confirm('Presiona "Aceptar" para REEMPLAZAR todos los datos actuales, o "Cancelar" para FUSIONAR con los datos existentes.');
+
+        if(replace){
+          orders = imported;
+        } else {
+          const existingIds = new Set(orders.map(o => o.id));
+          imported.forEach(o => {
+            if(!o.id || existingIds.has(o.id)) o.id = uid();
+            orders.push(o);
+          });
+        }
+        saveOrders();
+        render();
+        showToast('Datos importados correctamente ✅');
+      }catch(err){
+        alert('El archivo seleccionado no es un JSON válido de órdenes de servicio.');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ---------- Inicio ----------
+  loadOrders();
+  render();
+
+  // ---------- Registro de Service Worker (PWA) ----------
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('service-worker.js')
+        .catch(err => console.warn('No se pudo registrar el Service Worker:', err));
+    });
+  }
+
+  // ---------- Prompt de instalación (Android/Desktop Chrome/Edge) ----------
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('btnInstallApp');
+    if(btn) btn.style.display = 'inline-flex';
+  });
+
+  window.addEventListener('appinstalled', ()=>{
+    const btn = document.getElementById('btnInstallApp');
+    if(btn) btn.style.display = 'none';
+    showToast('App instalada correctamente 📲');
+  });
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const btn = document.getElementById('btnInstallApp');
+    if(btn){
+      btn.addEventListener('click', async ()=>{
+        if(!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        btn.style.display = 'none';
+      });
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
