@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ordenes-servicio-cache-v1';
+const CACHE_NAME = 'ordenes-servicio-amoled-v1';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -15,7 +15,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activación: limpiar cachés antiguas
+// Activación: limpiar cachés antiguas de versiones anteriores
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -27,7 +27,8 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: cache-first, con fallback a red y actualización silenciosa
+// Fetch: estrategia "stale-while-revalidate" -> responde desde caché al instante
+// y actualiza la caché en segundo plano si hay conexión.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
