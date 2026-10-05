@@ -1,261 +1,808 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Órdenes de Servicio</title>
-<meta name="theme-color" content="#0f172a">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<style>
-:root{--bg:#f4f6fa;--card:#fff;--tx:#0f172a;--mu:#64748b;--ln:#e2e8f0;--ac:#2563eb;--acx:#fff;--in:#f1f5f9;
---Abierto:#2563eb;--Asignado:#7c3aed;--Pendiente:#d97706;--Cerrado:#16a34a}
-@media(prefers-color-scheme:dark){:root{--bg:#0b1120;--card:#162033;--tx:#e8edf5;--mu:#94a3b8;--ln:#26334a;--ac:#38bdf8;--acx:#06283d;--in:#0f1a2c;
---Abierto:#60a5fa;--Asignado:#a78bfa;--Pendiente:#fbbf24;--Cerrado:#4ade80}}
-*{box-sizing:border-box;margin:0}
-body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);
-padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
-main{max-width:720px;margin:0 auto;display:grid;gap:14px}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer;border:0;background:none}
-:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-.top{display:flex;gap:8px}
-.top button,.chip,.sm{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:10px 12px;font-weight:600;font-size:13px}
-.top button{flex:1}
-.big{width:100%;background:var(--ac);color:var(--acx);border-radius:18px;padding:22px;font-size:20px;font-weight:700;box-shadow:0 8px 24px -10px var(--ac)}
-.big:active{transform:scale(.99)}
-input,select,textarea{width:100%;background:var(--in);border:1px solid var(--ln);border-radius:12px;padding:12px}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
-.chip{white-space:nowrap;color:var(--mu)}
-.chip.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
-.card{background:var(--card);border:1px solid var(--ln);border-left:5px solid var(--c);border-radius:14px;padding:12px 14px;display:grid;gap:6px}
-.head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.tk{font-weight:700;font-size:17px;color:var(--ac);text-decoration:underline;text-underline-offset:3px}
-.badge{font-size:12px;font-weight:700;color:var(--c);border:1px solid var(--c);border-radius:99px;padding:2px 10px}
-.f{display:flex;align-items:baseline;gap:8px}
-.f i{font-style:normal;color:var(--mu);font-size:12px;min-width:84px}
-.f span{flex:1;overflow-wrap:anywhere}
-.f span[data-a]{color:var(--ac);cursor:pointer}
-.cp{color:var(--mu);font-size:15px;padding:2px 6px;border-radius:8px}
-.cp:hover{background:var(--in)}
-.date{color:var(--mu);font-size:12px}
-.empty{text-align:center;color:var(--mu);padding:32px 0}
-h2{font-size:18px}
-dialog{border:0;border-radius:20px;padding:20px;width:min(560px,94vw);max-height:90vh;background:var(--card);color:var(--tx);box-shadow:0 20px 60px rgba(0,0,0,.4)}
-dialog::backdrop{background:rgba(2,6,23,.6)}
-form,.grp{display:grid;gap:10px}
-label{display:grid;gap:4px;font-size:13px;color:var(--mu);font-weight:600}
-.row{display:flex;gap:8px}.row>*{flex:1}
-.pri{background:var(--ac);color:var(--acx);border-radius:12px;padding:12px;font-weight:700}
-.dan{color:#dc2626;border:1px solid #dc2626;border-radius:12px;padding:12px;font-weight:600}
-.sec{border:1px solid var(--ln);border-radius:12px;padding:12px;font-weight:600}
-.item{background:var(--in);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:8px;cursor:pointer}
-footer{display:grid;gap:8px;border-top:1px solid var(--ln);padding-top:16px;margin-top:6px}
-footer p{color:var(--mu);font-size:12px}
-#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(80px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;font-size:14px;transition:.25s;z-index:99;pointer-events:none}
-#toast.show{transform:translateX(-50%)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Órdenes de Servicio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
 </head>
-<body>
-<main>
-  <div class="top">
-    <button id="cpAb">📋 Copiar abiertos</button>
-    <button id="cpPe">📋 Copiar pendientes</button>
-  </div>
-  <button class="big" id="nuevo">＋ Nueva orden de servicio</button>
-  <input type="search" id="q" placeholder="Buscar ticket, tienda, equipo, coordinador, falla…" aria-label="Buscar">
-  <div class="chips" id="chips"></div>
-  <div id="lista" class="grp"></div>
-  <footer>
-    <div class="row">
-      <button class="sec" id="exp">⬇ Exportar datos (JSON)</button>
-      <button class="sec" id="imp">⬆ Importar datos (JSON)</button>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Auto Inyección PWA: Manifest, SW e Icono SVG embebido -->
+    <script>
+        (function generatePWAFiles() {
+            // Icono SVG Maskable
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+                <rect width="512" height="512" rx="100" fill="#0284c7"/>
+                <path d="M160 120H352C367.464 120 380 132.536 380 148V364C380 379.464 367.464 392 352 392H160C144.536 392 132 379.464 132 364V148C132 132.536 144.536 120 160 120Z" stroke="white" stroke-width="24"/>
+                <path d="M200 180H312" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                <path d="M200 240H312" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                <path d="M200 300H260" stroke="white" stroke-width="24" stroke-linecap="round"/>
+                <circle cx="330" cy="310" r="30" fill="#38bdf8"/>
+                <path d="M322 310L328 316L340 304" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`;
+
+            const iconBlob = new Blob([svgIcon], { type: 'image/svg+xml' });
+            const iconUrl = URL.createObjectURL(iconBlob);
+
+            // Manifest JSON
+            const manifest = {
+                name: "Gestor de Órdenes de Servicio",
+                short_name: "ÓrdenesServicio",
+                description: "Gestión offline de órdenes de servicio e incidencias",
+                start_url: "./",
+                display: "standalone",
+                background_color: "#f8fafc",
+                theme_color: "#0284c7",
+                icons: [{
+                    src: iconUrl,
+                    sizes: "512x512",
+                    type: "image/svg+xml",
+                    purpose: "any maskable"
+                }]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = manifestUrl;
+            document.head.appendChild(manifestLink);
+
+            const faviconLink = document.createElement('link');
+            faviconLink.rel = 'icon';
+            faviconLink.href = iconUrl;
+            document.head.appendChild(faviconLink);
+
+            // Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'service-orders-v1';
+                    self.addEventListener('install', (e) => {
+                        self.skipWaiting();
+                    });
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(clients.claim());
+                    });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            fetch(e.request).catch(() => caches.match(e.request))
+                        );
+                    });
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Error:', err));
+                });
+            }
+        })();
+    </script>
+
+    <!-- Top Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-900 leading-tight">Órdenes de Servicio</h1>
+                        <p class="text-xs text-slate-500 font-medium">Panel de Control Offline</p>
+                    </div>
+                </div>
+                <!-- Status Badge -->
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Local
+                </span>
+            </div>
+
+            <!-- Botones Superiores de Copiado Masivo -->
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button onclick="copyBulkStatus('Abierto')" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200/80 transition-all active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                    Copiar Abiertos
+                </button>
+                <button onclick="copyBulkStatus('Pendiente')" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/80 transition-all active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                    Copiar Pendientes
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
+
+        <!-- Botón Principal Grande para Nueva Órden -->
+        <div class="bg-gradient-to-r from-brand-600 to-sky-600 rounded-2xl p-6 text-white shadow-lg shadow-brand-500/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold">Gestión Rápida de Incidencias</h2>
+                <p class="text-sky-100 text-sm mt-1">Registra nuevos reportes con autocompletado inteligente por código de tienda.</p>
+            </div>
+            <button onclick="openNewModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white text-brand-700 hover:bg-slate-50 font-bold rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95 text-sm">
+                <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                Nueva Orden de Servicio
+            </button>
+        </div>
+
+        <!-- Buscador Inteligente -->
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input type="text" id="searchInput" oninput="renderOrders()" placeholder="Buscar rápidamente por ticket, tienda, equipo, coordinador, falla o estatus..." 
+                   class="w-full pl-11 pr-10 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all placeholder:text-slate-400">
+            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <!-- Barra de Filtros Rápidos y Ordenamiento -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <!-- Filtros por Estatus -->
+                <div class="flex flex-wrap items-center gap-1.5" id="statusFilterContainer">
+                    <button onclick="setStatusFilter('Todos')" data-filter="Todos" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                        Todos <span class="text-[10px] opacity-75 font-normal">(Excluye Cerrados)</span>
+                    </button>
+                    <button onclick="setStatusFilter('Abierto')" data-filter="Abierto" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                        Abiertos
+                    </button>
+                    <button onclick="setStatusFilter('Asignado')" data-filter="Asignado" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                        Asignados
+                    </button>
+                    <button onclick="setStatusFilter('Pendiente')" data-filter="Pendiente" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                        Pendientes
+                    </button>
+                    <button onclick="setStatusFilter('Cerrado')" data-filter="Cerrado" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                        Cerrados
+                    </button>
+                </div>
+
+                <!-- Selección de Ordenamiento -->
+                <div class="flex items-center gap-2 self-end lg:self-auto w-full lg:w-auto justify-end">
+                    <label for="sortSelect" class="text-xs font-medium text-slate-500 whitespace-nowrap">Ordenar por:</label>
+                    <select id="sortSelect" onchange="renderOrders()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg p-2 focus:ring-brand-500 focus:border-brand-500 font-medium cursor-pointer">
+                        <option value="date-desc">Fecha: Más reciente primero</option>
+                        <option value="date-asc">Fecha: Más antiguo primero</option>
+                        <option value="alpha-asc">Alfabético: Tienda (A-Z)</option>
+                        <option value="alpha-desc">Alfabético: Tienda (Z-A)</option>
+                        <option value="ticket-asc">Ticket (Ascendente)</option>
+                        <option value="ticket-desc">Ticket (Descendente)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Órdenes de Servicio -->
+        <div id="ordersList" class="space-y-3">
+            <!-- Renderizado dinámico -->
+        </div>
+
+        <!-- Estado Vacío -->
+        <div id="emptyState" class="hidden bg-white border border-dashed border-slate-300 rounded-2xl p-12 text-center">
+            <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+            </div>
+            <h3 class="text-slate-800 font-semibold text-base">No hay órdenes registradas</h3>
+            <p class="text-slate-500 text-xs mt-1 max-w-sm mx-auto">No se encontraron datos que coincidan con los filtros de búsqueda o estatus seleccionados.</p>
+        </div>
+
+    </main>
+
+    <!-- Footer: Importar / Exportar JSON -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-center sm:text-left">
+                <p class="text-xs font-semibold text-slate-700">Resguardo y Gestión de Datos Local</p>
+                <p class="text-[11px] text-slate-500">Tus datos se mantienen 100% privados en el almacenamiento local de este dispositivo.</p>
+            </div>
+            <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                <button onclick="exportDataJSON()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-300/80 transition-all active:scale-95">
+                    <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Exportar Backup (JSON)
+                </button>
+                <label class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-300/80 transition-all cursor-pointer active:scale-95">
+                    <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    Importar Backup (JSON)
+                    <input type="file" id="importFileInput" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                </label>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL: Formulario para Nueva / Editar Orden -->
+    <div id="orderModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative my-8">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-900">Nueva Orden de Servicio</h3>
+                <button onclick="closeOrderModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form id="orderForm" onsubmit="handleFormSubmit(event)" class="space-y-4 mt-4">
+                <input type="hidden" id="orderId">
+
+                <!-- Ticket -->
+                <div>
+                    <label for="ticketInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ticket / Folio *</label>
+                    <input type="text" id="ticketInput" required oninput="handleTicketInput()" placeholder="Ej. 55012-ABC" 
+                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <p class="text-[11px] text-slate-400 mt-1">Los primeros 5 dígitos detectan automáticamente Tienda y Coordinador previo.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Tienda -->
+                    <div>
+                        <label for="tiendaInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tienda *</label>
+                        <input type="text" id="tiendaInput" required placeholder="Nombre de la Sucursal" 
+                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+
+                    <!-- Estatus -->
+                    <div>
+                        <label for="statusInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Estatus *</label>
+                        <select id="statusInput" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white">
+                            <option value="Abierto">Abierto</option>
+                            <option value="Asignado">Asignado</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Cerrado">Cerrado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Equipo -->
+                    <div>
+                        <label for="equipoInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Equipo *</label>
+                        <input type="text" id="equipoInput" list="equipoOptions" required placeholder="Selecciona o escribe..." 
+                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                        <datalist id="equipoOptions">
+                            <option value="Merrychef"></option>
+                            <option value="Bunn"></option>
+                            <option value="Nuvu"></option>
+                            <option value="Molino"></option>
+                            <option value="Licuadora"></option>
+                            <option value="Turbochef"></option>
+                            <option value="Báscula"></option>
+                            <option value="Otros"></option>
+                        </datalist>
+                    </div>
+
+                    <!-- Coordinador -->
+                    <div>
+                        <label for="coordinadorInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Coordinador *</label>
+                        <input type="text" id="coordinadorInput" required placeholder="Nombre del Encargado" 
+                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                </div>
+
+                <!-- Falla -->
+                <div>
+                    <label for="fallaInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Falla Reportada *</label>
+                    <input type="text" id="fallaInput" required placeholder="Descripción breve de la falla técnica" 
+                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                </div>
+
+                <!-- Observaciones -->
+                <div>
+                    <label for="observacionesInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Observaciones</label>
+                    <textarea id="observacionesInput" rows="3" placeholder="Detalles adicionales, número de serie, repuestos..." 
+                              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"></textarea>
+                </div>
+
+                <!-- Botones del Formulario -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeOrderModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+                        Guardar Orden
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    <input type="file" id="file" accept="application/json,.json" hidden>
-    <p>Los datos se guardan solo en este dispositivo (localStorage). Exporta un respaldo con frecuencia. Al importar, las órdenes se combinan con las existentes.</p>
-  </footer>
-</main>
 
-<dialog id="dlg">
-  <form id="frm">
-    <h2 id="dt">Nueva orden</h2>
-    <label>Ticket<input id="ticket" required autocomplete="off" inputmode="numeric"></label>
-    <div class="row">
-      <label>Tienda<input id="tienda" required autocomplete="off"></label>
-      <label>Status<select id="status"></select></label>
+    <!-- MODAL: Histórico agrupado (Tienda / Coordinador) -->
+    <div id="groupModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-8 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div>
+                    <h3 id="groupModalTitle" class="text-lg font-bold text-slate-900">Órdenes Asociadas</h3>
+                    <p id="groupModalSubtitle" class="text-xs text-slate-500"></p>
+                </div>
+                <button onclick="closeGroupModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div id="groupOrdersContainer" class="flex-1 overflow-y-auto custom-scrollbar my-4 space-y-3 pr-1">
+                <!-- Se inyectan las órdenes asociadas -->
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 text-right">
+                <button onclick="closeGroupModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">
+                    Cerrar
+                </button>
+            </div>
+        </div>
     </div>
-    <label>Equipo<input id="equipo" list="eqs" autocomplete="off" placeholder="Elige o escribe"></label>
-    <datalist id="eqs"></datalist>
-    <label>Coordinador<input id="coord" autocomplete="off"></label>
-    <label>Falla<input id="falla" autocomplete="off"></label>
-    <label>Observaciones<textarea id="obs" rows="3"></textarea></label>
-    <p class="date" id="meta"></p>
-    <button class="pri" type="submit">Guardar</button>
-    <div class="row">
-      <button class="sec" type="button" id="cancel">Cancelar</button>
-      <button class="dan" type="button" id="del" hidden>Eliminar</button>
+
+    <!-- Toast de Notificaciones -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-medium border border-slate-800">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span id="toastMessage">Notificación</span>
+        </div>
     </div>
-  </form>
-</dialog>
 
-<dialog id="gdlg">
-  <div class="grp">
-    <h2 id="gt"></h2>
-    <select id="gs" aria-label="Ordenar">
-      <option value="fd">Fecha y hora ↓ (más recientes)</option>
-      <option value="fa">Fecha y hora ↑ (más antiguas)</option>
-      <option value="az">Alfabético A → Z</option>
-      <option value="za">Alfabético Z → A</option>
-    </select>
-    <div id="gl" class="grp"></div>
-    <button class="sec" id="gc">Cerrar</button>
-  </div>
-</dialog>
-<div id="toast" role="status"></div>
+    <script>
+        const STORAGE_KEY = 'service_orders_db_v1';
+        let orders = [];
+        let currentStatusFilter = 'Todos';
 
-<script>
-const K='ordenes_servicio_v1';
-const STATUS=['Abierto','Asignado','Pendiente','Cerrado'];
-const EQUIPOS=['Merrychef','Bunn','Nuvu','Molino','Licuadora','Turbochef','Báscula','Otros'];
-const FILTROS=[['todos','Todos'],['Abierto','Abiertos'],['Asignado','Asignados'],['Cerrado','Cerrados'],['Pendiente','Pendientes']];
-const $=s=>document.querySelector(s);
-let D=load(),filtro='todos',editId=null,grp=null;
+        // Datos de muestra iniciales
+        const sampleData = [
+            {
+                id: 'ord_1',
+                ticket: '55012-01',
+                tienda: 'Tienda Centro 55012',
+                status: 'Abierto',
+                equipo: 'Merrychef',
+                coordinador: 'Juan Pérez',
+                falla: 'No calienta correctamente el horno superior',
+                observaciones: 'Revisión técnica urgente requerida',
+                timestamp: new Date(Date.now() - 3600000 * 5).toISOString()
+            },
+            {
+                id: 'ord_2',
+                ticket: '55012-02',
+                tienda: 'Tienda Centro 55012',
+                status: 'Pendiente',
+                equipo: 'Turbochef',
+                coordinador: 'Juan Pérez',
+                falla: 'Error de pantalla táctil no responde',
+                observaciones: 'Esperando repuesto de tarjeta madre',
+                timestamp: new Date(Date.now() - 3600000 * 24).toISOString()
+            },
+            {
+                id: 'ord_3',
+                ticket: '44089-01',
+                tienda: 'Tienda Norte 44089',
+                status: 'Asignado',
+                equipo: 'Bunn',
+                coordinador: 'Maria Gomez',
+                falla: 'Fuga de agua en el contenedor principal',
+                observaciones: 'Técnico en camino',
+                timestamp: new Date(Date.now() - 3600000 * 2).toISOString()
+            }
+        ];
 
-function load(){try{const v=JSON.parse(localStorage.getItem(K));return Array.isArray(v)?v:[]}catch{return[]}}
-function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch{toast('No se pudo guardar')}}
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt=t=>new Date(t).toLocaleString('es-MX',{dateStyle:'short',timeStyle:'short'});
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),1800)}
-async function copy(txt){
-  try{await navigator.clipboard.writeText(txt)}catch{
-    const a=document.createElement('textarea');a.value=txt;document.body.append(a);a.select();
-    try{document.execCommand('copy')}catch{}a.remove()}
-  toast('Copiado ✓')}
+        function loadOrders() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                if (data) {
+                    orders = JSON.parse(data);
+                } else {
+                    orders = sampleData;
+                    saveOrders();
+                }
+            } catch (e) {
+                console.error('Error cargando localStorage:', e);
+                orders = [];
+            }
+        }
 
-/* ---------- Init UI ---------- */
-$('#status').innerHTML=STATUS.map(s=>`<option>${s}</option>`).join('');
-$('#eqs').innerHTML=EQUIPOS.map(s=>`<option value="${s}">`).join('');
-$('#chips').innerHTML=FILTROS.map(([v,l])=>`<button class="chip" data-f="${v}">${l}</button>`).join('');
+        function saveOrders() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+            } catch (e) {
+                showToast('Error al guardar en almacenamiento local');
+            }
+        }
 
-/* ---------- Lista ---------- */
-function render(){
-  const q=$('#q').value.trim().toLowerCase();
-  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.f===filtro));
-  const rows=D.filter(d=>(filtro==='todos'?d.status!=='Cerrado':d.status===filtro)&&
-    (!q||[d.ticket,d.tienda,d.status,d.equipo,d.coord,d.falla,d.obs].join(' ').toLowerCase().includes(q)))
-    .sort((a,b)=>b.creado-a.creado);
-  $('#lista').innerHTML=rows.length?rows.map(card).join(''):'<p class="empty">No hay órdenes aquí. Toca “Nueva orden de servicio” para crear la primera.</p>';
-}
-function field(label,key,val,link){
-  if(!val&&key!=='ticket')return '';
-  return `<div class="f"><i>${label}</i><span ${link||''}>${esc(val)}</span><button class="cp" data-c="${key}" title="Copiar ${label}">⧉</button></div>`}
-function card(d){
-  return `<article class="card" style="--c:var(--${d.status})" data-id="${d.id}">
-  <div class="head"><span class="tk" data-a="edit" role="button" tabindex="0">${esc(d.ticket)}</span><span class="badge">${d.status}</span></div>
-  ${field('Tienda','tienda',d.tienda,'data-a="tienda"')}
-  ${field('Equipo','equipo',d.equipo)}
-  ${field('Coordinador','coord',d.coord,'data-a="coord"')}
-  ${field('Falla','falla',d.falla)}
-  ${field('Status','status',d.status)}
-  ${field('Observaciones','obs',d.obs)}
-  <div class="date">Creado ${fmt(d.creado)}${d.editado?' · editado '+fmt(d.editado):''}</div></article>`}
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'Abierto': return 'bg-sky-50 text-sky-700 border-sky-200';
+                case 'Asignado': return 'bg-purple-50 text-purple-700 border-purple-200';
+                case 'Pendiente': return 'bg-amber-50 text-amber-700 border-amber-200';
+                case 'Cerrado': return 'bg-slate-100 text-slate-600 border-slate-200';
+                default: return 'bg-slate-50 text-slate-700 border-slate-200';
+            }
+        }
 
-document.addEventListener('click',e=>{
-  const f=e.target.closest('[data-f]');if(f){filtro=f.dataset.f;render();return}
-  const art=e.target.closest('[data-id]');
-  if(!art)return;
-  const d=D.find(x=>x.id===art.dataset.id);if(!d)return;
-  const c=e.target.closest('[data-c]');if(c){copy(d[c.dataset.c]||'');return}
-  const a=e.target.closest('[data-a]');if(!a)return;
-  if(a.dataset.a==='edit')abrir(d);
-  else abrirGrupo(a.dataset.a,d[a.dataset.a]);
-});
-$('#lista').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.a==='edit')e.target.click()});
-$('#q').addEventListener('input',render);
+        function formatDate(isoString) {
+            if (!isoString) return '';
+            const d = new Date(isoString);
+            return d.toLocaleString('es-MX', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
 
-/* ---------- Formulario ---------- */
-const ids=['ticket','tienda','status','equipo','coord','falla','obs'];
-function abrir(d){
-  editId=d?d.id:null;
-  $('#dt').textContent=d?'Editar orden':'Nueva orden';
-  $('#ticket').value=d?.ticket||'';$('#tienda').value=d?.tienda||'';$('#status').value=d?.status||'Abierto';
-  $('#equipo').value=d?.equipo||'';$('#coord').value=d?.coord||'';$('#falla').value=d?.falla||'';$('#obs').value=d?.obs||'';
-  ['tienda','coord'].forEach(k=>delete $('#'+k).dataset.auto);
-  $('#del').hidden=!d;
-  $('#meta').textContent=d?`Creado ${fmt(d.creado)}`:'La fecha y hora se registran al guardar.';
-  $('#gdlg').close();$('#dlg').showModal();
-}
-$('#nuevo').onclick=()=>abrir(null);
-$('#cancel').onclick=()=>$('#dlg').close();
-['tienda','coord'].forEach(k=>$('#'+k).addEventListener('input',e=>delete e.target.dataset.auto));
-// Autocompletar Tienda y Coordinador con los 5 primeros dígitos del ticket
-$('#ticket').addEventListener('input',e=>{
-  const p=e.target.value.trim().slice(0,5);if(p.length<5)return;
-  const prev=D.filter(d=>d.id!==editId&&d.ticket.slice(0,5)===p).sort((a,b)=>b.creado-a.creado)[0];
-  if(!prev)return;
-  [['tienda',prev.tienda],['coord',prev.coord]].forEach(([k,v])=>{
-    const el=$('#'+k);if(!el.value||el.dataset.auto){el.value=v;el.dataset.auto='1'}});
-});
-$('#frm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const v={ticket:$('#ticket').value.trim(),tienda:$('#tienda').value.trim(),status:$('#status').value,
-    equipo:$('#equipo').value.trim(),coord:$('#coord').value.trim(),falla:$('#falla').value.trim(),obs:$('#obs').value.trim()};
-  if(editId){const d=D.find(x=>x.id===editId);Object.assign(d,v,{editado:Date.now()})}
-  else D.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),creado:Date.now(),...v});
-  save();$('#dlg').close();render();toast('Guardado ✓');
-});
-$('#del').onclick=()=>{if(confirm('¿Eliminar esta orden? No se puede deshacer.')){D=D.filter(x=>x.id!==editId);save();$('#dlg').close();render()}};
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
 
-/* ---------- Lista por Tienda / Coordinador ---------- */
-function abrirGrupo(tipo,valor){grp={tipo,valor};$('#gt').textContent=(tipo==='tienda'?'Tienda: ':'Coordinador: ')+valor;renderGrupo();$('#gdlg').showModal()}
-function renderGrupo(){
-  const o=$('#gs').value;
-  const r=D.filter(d=>d[grp.tipo]===grp.valor).sort((a,b)=>
-    o==='fd'?b.creado-a.creado:o==='fa'?a.creado-b.creado:
-    o==='az'?a.ticket.localeCompare(b.ticket,'es',{numeric:true}):b.ticket.localeCompare(a.ticket,'es',{numeric:true}));
-  $('#gl').innerHTML=r.map(d=>`<div class="item" data-g="${d.id}"><div><b>${esc(d.ticket)}</b><br><span class="date">${esc(d.equipo)} · ${esc(d.falla)} · ${fmt(d.creado)}</span></div><span class="badge" style="--c:var(--${d.status})">${d.status}</span></div>`).join('');
-}
-$('#gs').onchange=renderGrupo;
-$('#gc').onclick=()=>$('#gdlg').close();
-$('#gl').addEventListener('click',e=>{const i=e.target.closest('[data-g]');if(i)abrir(D.find(x=>x.id===i.dataset.g))});
+        function renderOrders() {
+            const listEl = document.getElementById('ordersList');
+            const emptyEl = document.getElementById('emptyState');
+            const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            const sortMode = document.getElementById('sortSelect').value;
 
-/* ---------- Copiar reportes por estatus ---------- */
-function copiarPorStatus(s){
-  const r=D.filter(d=>d.status===s).sort((a,b)=>a.creado-b.creado);
-  if(!r.length)return toast('No hay reportes '+s.toLowerCase()+'s');
-  copy(r.map(d=>[d.ticket,d.tienda,d.equipo,d.coord,d.falla].join(' | ')).join('\n'));
-}
-$('#cpAb').onclick=()=>copiarPorStatus('Abierto');
-$('#cpPe').onclick=()=>copiarPorStatus('Pendiente');
+            document.getElementById('clearSearchBtn').classList.toggle('hidden', searchQuery === '');
 
-/* ---------- Exportar / Importar ---------- */
-$('#exp').onclick=()=>{
-  const b=new Blob([JSON.stringify({version:1,exportado:new Date().toISOString(),ordenes:D},null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);
-  a.download='ordenes-servicio-'+new Date().toISOString().slice(0,10)+'.json';a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-};
-$('#imp').onclick=()=>$('#file').click();
-$('#file').onchange=async e=>{
-  const f=e.target.files[0];e.target.value='';if(!f)return;
-  try{
-    const j=JSON.parse(await f.text());const arr=Array.isArray(j)?j:j.ordenes;
-    if(!Array.isArray(arr))throw 0;
-    let n=0;
-    arr.forEach(o=>{
-      if(!o||typeof o.ticket!=='string')return;
-      const x={id:String(o.id||Date.now().toString(36)+Math.random().toString(36).slice(2,6)),creado:+o.creado||Date.now(),
-        ticket:o.ticket,tienda:String(o.tienda||''),status:STATUS.includes(o.status)?o.status:'Abierto',
-        equipo:String(o.equipo||''),coord:String(o.coord||''),falla:String(o.falla||''),obs:String(o.obs||''),editado:o.editado?+o.editado:undefined};
-      const i=D.findIndex(d=>d.id===x.id);i<0?D.push(x):D[i]=x;n++});
-    save();render();toast(n+' órdenes importadas ✓');
-  }catch{toast('Archivo JSON no válido')}
-};
+            // 1. Filtrado
+            let filtered = orders.filter(o => {
+                if (currentStatusFilter === 'Todos') {
+                    if (o.status === 'Cerrado') return false;
+                } else {
+                    if (o.status !== currentStatusFilter) return false;
+                }
 
-render();
-if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));
-</script>
+                if (searchQuery) {
+                    const matchText = `${o.ticket} ${o.tienda} ${o.equipo} ${o.coordinador} ${o.falla} ${o.status} ${o.observaciones || ''}`.toLowerCase();
+                    if (!matchText.includes(searchQuery)) return false;
+                }
+
+                return true;
+            });
+
+            // 2. Ordenamiento
+            filtered.sort((a, b) => {
+                if (sortMode === 'date-desc') return new Date(b.timestamp) - new Date(a.timestamp);
+                if (sortMode === 'date-asc') return new Date(a.timestamp) - new Date(b.timestamp);
+                if (sortMode === 'alpha-asc') return a.tienda.localeCompare(b.tienda);
+                if (sortMode === 'alpha-desc') return b.tienda.localeCompare(a.tienda);
+                if (sortMode === 'ticket-asc') return a.ticket.localeCompare(b.ticket);
+                if (sortMode === 'ticket-desc') return b.ticket.localeCompare(a.ticket);
+                return 0;
+            });
+
+            // Actualizar botones de pestaña
+            document.querySelectorAll('.filter-tab').forEach(btn => {
+                const f = btn.getAttribute('data-filter');
+                if (f === currentStatusFilter) {
+                    btn.className = 'filter-tab px-3.5 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white shadow-sm transition-all';
+                } else {
+                    btn.className = 'filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all';
+                }
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+
+            listEl.innerHTML = filtered.map(order => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <!-- Click en Ticket para editar -->
+                            <button onclick="openEditModal('${order.id}')" title="Pulsar para editar esta orden" 
+                                    class="text-base font-bold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1 group">
+                                <span>#${escapeHtml(order.ticket)}</span>
+                                <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </button>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getStatusBadgeClass(order.status)}">
+                                ${escapeHtml(order.status)}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2 justify-between sm:justify-end text-xs text-slate-400">
+                            <span>${formatDate(order.timestamp)}</span>
+                            <!-- Botón Copiar Único -->
+                            <button onclick="copySingleOrder('${order.id}')" title="Copiar reporte al portapapeles" 
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium rounded-lg border border-slate-200 text-xs transition-all active:scale-95">
+                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                Copiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-3 text-xs">
+                        <div>
+                            <span class="text-slate-400 block font-medium text-[11px]">Tienda</span>
+                            <!-- Click en Tienda para histórico -->
+                            <button onclick="openGroupModal('tienda', '${escapeJsString(order.tienda)}')" class="font-semibold text-slate-800 hover:text-brand-600 text-left hover:underline">
+                                ${escapeHtml(order.tienda)}
+                            </button>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium text-[11px]">Equipo</span>
+                            <span class="font-semibold text-slate-800">${escapeHtml(order.equipo)}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium text-[11px]">Coordinador</span>
+                            <!-- Click en Coordinador para histórico -->
+                            <button onclick="openGroupModal('coordinador', '${escapeJsString(order.coordinador)}')" class="font-semibold text-slate-800 hover:text-brand-600 text-left hover:underline">
+                                ${escapeHtml(order.coordinador)}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-100">
+                        <div><strong class="text-slate-700">Falla:</strong> <span class="text-slate-600">${escapeHtml(order.falla)}</span></div>
+                        ${order.observaciones ? `<div><strong class="text-slate-700">Observaciones:</strong> <span class="text-slate-500">${escapeHtml(order.observaciones)}</span></div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Lógica de autocompletado basada en los primeros 5 dígitos del Ticket
+        function handleTicketInput() {
+            const val = document.getElementById('ticketInput').value.trim();
+            if (val.length >= 5) {
+                const prefix = val.substring(0, 5);
+                const match = orders.find(o => o.ticket && o.ticket.startsWith(prefix));
+                if (match) {
+                    const tiendaInput = document.getElementById('tiendaInput');
+                    const coordInput = document.getElementById('coordinadorInput');
+                    
+                    if (!tiendaInput.value) tiendaInput.value = match.tienda;
+                    if (!coordInput.value) coordInput.value = match.coordinador;
+                }
+            }
+        }
+
+        function openNewModal() {
+            document.getElementById('orderId').value = '';
+            document.getElementById('orderForm').reset();
+            document.getElementById('modalTitle').textContent = 'Nueva Orden de Servicio';
+            document.getElementById('statusInput').value = 'Abierto';
+            document.getElementById('orderModal').classList.remove('hidden');
+        }
+
+        function openEditModal(id) {
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+
+            document.getElementById('orderId').value = order.id;
+            document.getElementById('ticketInput').value = order.ticket;
+            document.getElementById('tiendaInput').value = order.tienda;
+            document.getElementById('statusInput').value = order.status;
+            document.getElementById('equipoInput').value = order.equipo;
+            document.getElementById('coordinadorInput').value = order.coordinador;
+            document.getElementById('fallaInput').value = order.falla;
+            document.getElementById('observacionesInput').value = order.observaciones || '';
+
+            document.getElementById('modalTitle').textContent = `Editar Orden #${order.ticket}`;
+            document.getElementById('orderModal').classList.remove('hidden');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('orderId').value;
+            const ticket = document.getElementById('ticketInput').value.trim();
+            const tienda = document.getElementById('tiendaInput').value.trim();
+            const status = document.getElementById('statusInput').value;
+            const equipo = document.getElementById('equipoInput').value.trim();
+            const coordinador = document.getElementById('coordinadorInput').value.trim();
+            const falla = document.getElementById('fallaInput').value.trim();
+            const observaciones = document.getElementById('observacionesInput').value.trim();
+
+            if (id) {
+                const index = orders.findIndex(o => o.id === id);
+                if (index !== -1) {
+                    orders[index] = {
+                        ...orders[index],
+                        ticket, tienda, status, equipo, coordinador, falla, observaciones
+                    };
+                    showToast('Orden actualizada correctamente');
+                }
+            } else {
+                const newOrder = {
+                    id: 'ord_' + Date.now(),
+                    ticket,
+                    tienda,
+                    status,
+                    equipo,
+                    coordinador,
+                    falla,
+                    observaciones,
+                    timestamp: new Date().toISOString()
+                };
+                orders.unshift(newOrder);
+                showToast('Nueva orden registrada con éxito');
+            }
+
+            saveOrders();
+            renderOrders();
+            closeOrderModal();
+        }
+
+        function openGroupModal(type, value) {
+            const titleEl = document.getElementById('groupModalTitle');
+            const subtitleEl = document.getElementById('groupModalSubtitle');
+            const container = document.getElementById('groupOrdersContainer');
+
+            const matches = orders.filter(o => {
+                if (type === 'tienda') return o.tienda.toLowerCase() === value.toLowerCase();
+                if (type === 'coordinador') return o.coordinador.toLowerCase() === value.toLowerCase();
+                return false;
+            });
+
+            titleEl.textContent = type === 'tienda' ? `Tienda: ${value}` : `Coordinador: ${value}`;
+            subtitleEl.textContent = `Total de ${matches.length} reporte(s) registrado(s)`;
+
+            container.innerHTML = matches.map(o => `
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-brand-600">Ticket: #${escapeHtml(o.ticket)}</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadgeClass(o.status)}">
+                            ${escapeHtml(o.status)}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-slate-600">
+                        <div><strong>Equipo:</strong> ${escapeHtml(o.equipo)}</div>
+                        <div><strong>Fecha:</strong> ${formatDate(o.timestamp)}</div>
+                    </div>
+                    <div class="text-slate-700"><strong>Falla:</strong> ${escapeHtml(o.falla)}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('groupModal').classList.remove('hidden');
+        }
+
+        function closeGroupModal() {
+            document.getElementById('groupModal').classList.add('hidden');
+        }
+
+        function copyToClipboardText(text, successMsg) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg);
+            } catch (err) {
+                showToast('Error al copiar al portapapeles');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copySingleOrder(id) {
+            const o = orders.find(item => item.id === id);
+            if (!o) return;
+
+            const text = `Ticket: ${o.ticket}\nTienda: ${o.tienda}\nEquipo: ${o.equipo}\nCoordinador: ${o.coordinador}\nFalla: ${o.falla}\nStatus: ${o.status}\nObservaciones: ${o.observaciones || 'N/A'}`;
+            copyToClipboardText(text, 'Datos de la orden copiados');
+        }
+
+        function copyBulkStatus(statusTarget) {
+            const matches = orders.filter(o => o.status === statusTarget);
+            if (matches.length === 0) {
+                showToast(`No hay reportes con estatus ${statusTarget}`);
+                return;
+            }
+
+            const textList = matches.map((o, idx) => {
+                return `${idx + 1}. Ticket: ${o.ticket} | Tienda: ${o.tienda} | Equipo: ${o.equipo} | Coordinador: ${o.coordinador} | Falla: ${o.falla}`;
+            }).join('\n\n');
+
+            copyToClipboardText(textList, `${matches.length} reportes (${statusTarget}) copiados`);
+        }
+
+        function setStatusFilter(status) {
+            currentStatusFilter = status;
+            renderOrders();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            renderOrders();
+        }
+
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orders, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ordenes_servicio_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('Backup JSON descargado');
+        }
+
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        orders = imported;
+                        saveOrders();
+                        renderOrders();
+                        showToast('Base de datos importada con éxito');
+                    } else {
+                        showToast('El archivo JSON no tiene un formato válido');
+                    }
+                } catch (err) {
+                    showToast('Error al leer el archivo JSON');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+
+        function escapeJsString(str) {
+            if (!str) return '';
+            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
+        window.onload = function() {
+            loadOrders();
+            renderOrders();
+        };
+    </script>
 </body>
 </html>
