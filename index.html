@@ -1,808 +1,313 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Órdenes de Servicio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#0284c7',
-                            600: '#0369a1',
-                            700: '#075985',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Órdenes de servicio</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--tx:#10201e;--mu:#62736f;--ln:#e0e7e5;--ac:#0f766e;--ac2:#0b5d57;--acs:#d9f0ec;--dg:#b42318;
+--s-Abierto:#0f766e;--s-Asignado:#2563eb;--s-Pendiente:#b7791f;--s-Cerrado:#64748b;--s-Cancelado:#b42318}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1514;--card:#16201f;--tx:#e8f0ee;--mu:#8fa39f;--ln:#26332f;--ac:#2dd4bf;--ac2:#5eead4;--acs:#12332f;--dg:#f87171;
+--s-Abierto:#2dd4bf;--s-Asignado:#60a5fa;--s-Pendiente:#fbbf24;--s-Cerrado:#94a3b8;--s-Cancelado:#f87171}}
+*{box-sizing:border-box;margin:0}
+body{font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:720px;margin:0 auto;padding:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+h1{font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
+.bulk{display:flex;gap:6px}
+.pill{border:1px solid var(--ln);background:var(--card);padding:7px 12px;border-radius:99px;font-size:.82rem;font-weight:600;display:inline-flex;gap:6px;align-items:center}
+.pill:hover{border-color:var(--ac)}
+.big{width:100%;background:var(--ac);color:#fff;border-radius:20px;padding:26px 16px;font-size:1.3rem;font-weight:700;display:flex;justify-content:center;align-items:center;gap:12px;box-shadow:0 8px 24px -10px var(--ac);transition:transform .1s}
+@media(prefers-color-scheme:dark){.big{color:#042f2a}}
+.big:active{transform:scale(.98)}
+.big svg{width:28px;height:28px}
+.search{margin:14px 0 10px;position:relative}
+.search input{width:100%;padding:13px 14px 13px 42px;border-radius:14px;border:1px solid var(--ln);background:var(--card)}
+.search svg{position:absolute;left:14px;top:14px;width:18px;height:18px;color:var(--mu)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chip{white-space:nowrap;padding:8px 14px;border-radius:99px;background:var(--card);border:1px solid var(--ln);font-size:.85rem;font-weight:600;color:var(--mu)}
+.chip[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:#fff}
+@media(prefers-color-scheme:dark){.chip[aria-pressed=true]{color:#042f2a}}
+.chip small{opacity:.75;margin-left:4px}
+#lista{display:grid;gap:10px}
+.card{background:var(--card);border:1px solid var(--ln);border-left:4px solid var(--c,var(--ln));border-radius:14px;padding:12px 14px}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.tk{font-weight:700;font-size:1.05rem;color:var(--ac);text-decoration:underline;text-underline-offset:3px;text-align:left}
+.badge{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:99px;color:var(--c);border:1px solid var(--c);display:inline-flex;align-items:center;gap:4px}
+.sp{flex:1}
+.f{display:flex;align-items:flex-start;gap:6px;padding:4px 0;border-top:1px solid var(--ln);font-size:.9rem}
+.f:first-of-type{border-top:0}
+.l{width:92px;flex:none;color:var(--mu);font-size:.8rem;padding-top:1px}
+.v{flex:1;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.lk{font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:left;color:var(--tx)}
+.cp{flex:none;width:30px;height:30px;border-radius:8px;color:var(--mu);display:grid;place-items:center}
+.cp:hover{background:var(--acs);color:var(--ac)}
+.cp svg{width:16px;height:16px}
+.ts{font-size:.75rem;color:var(--mu);margin-top:4px}
+.empty{text-align:center;color:var(--mu);padding:36px 12px;border:1px dashed var(--ln);border-radius:14px}
+footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--ln);display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+footer p{width:100%;text-align:center;color:var(--mu);font-size:.78rem}
+dialog{border:0;border-radius:20px;padding:0;width:min(560px,94vw);max-height:92vh;background:var(--bg);color:var(--tx);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:16px 18px 8px;position:sticky;top:0;background:var(--bg);z-index:1}
+.dh h2{font-size:1.1rem}
+.x{width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--ln);font-size:1.1rem}
+.db{padding:6px 18px 18px;display:grid;gap:12px}
+label{display:grid;gap:5px;font-size:.82rem;font-weight:600;color:var(--mu)}
+label input,label select,label textarea{padding:11px 12px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font-weight:400;font-size:1rem}
+textarea{min-height:76px;resize:vertical}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts{display:flex;gap:8px;margin-top:4px}
+.btn{flex:1;padding:13px;border-radius:12px;font-weight:700;background:var(--ac);color:#fff}
+@media(prefers-color-scheme:dark){.btn{color:#042f2a}}
+.btn.del{flex:none;background:none;color:var(--dg);border:1px solid var(--dg)}
+.hint{font-size:.75rem;color:var(--ac);font-weight:500}
+.lrow{background:var(--card);border:1px solid var(--ln);border-left:4px solid var(--c);border-radius:12px;padding:10px 12px;font-size:.88rem}
+.lrow .top{margin:0 0 4px}
+.toolbar{display:flex;gap:8px;align-items:center}
+.toolbar select{flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--ln);background:var(--card);color:var(--tx)}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:.88rem;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:99}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:420px){.l{width:78px}.g2{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+<body>
+<main>
+<header>
+  <h1>Órdenes de servicio</h1>
+  <div class="bulk">
+    <button class="pill" data-act="bulk" data-s="Abierto">Copiar abiertos</button>
+    <button class="pill" data-act="bulk" data-s="Pendiente">Copiar pendientes</button>
+  </div>
+</header>
 
-    <!-- Auto Inyección PWA: Manifest, SW e Icono SVG embebido -->
-    <script>
-        (function generatePWAFiles() {
-            // Icono SVG Maskable
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-                <rect width="512" height="512" rx="100" fill="#0284c7"/>
-                <path d="M160 120H352C367.464 120 380 132.536 380 148V364C380 379.464 367.464 392 352 392H160C144.536 392 132 379.464 132 364V148C132 132.536 144.536 120 160 120Z" stroke="white" stroke-width="24"/>
-                <path d="M200 180H312" stroke="white" stroke-width="24" stroke-linecap="round"/>
-                <path d="M200 240H312" stroke="white" stroke-width="24" stroke-linecap="round"/>
-                <path d="M200 300H260" stroke="white" stroke-width="24" stroke-linecap="round"/>
-                <circle cx="330" cy="310" r="30" fill="#38bdf8"/>
-                <path d="M322 310L328 316L340 304" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>`;
+<button class="big" data-act="nuevo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  Nueva orden de servicio
+</button>
 
-            const iconBlob = new Blob([svgIcon], { type: 'image/svg+xml' });
-            const iconUrl = URL.createObjectURL(iconBlob);
+<div class="search">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+  <input id="q" type="search" placeholder="Buscar ticket, tienda, falla, coordinador…" autocomplete="off">
+</div>
 
-            // Manifest JSON
-            const manifest = {
-                name: "Gestor de Órdenes de Servicio",
-                short_name: "ÓrdenesServicio",
-                description: "Gestión offline de órdenes de servicio e incidencias",
-                start_url: "./",
-                display: "standalone",
-                background_color: "#f8fafc",
-                theme_color: "#0284c7",
-                icons: [{
-                    src: iconUrl,
-                    sizes: "512x512",
-                    type: "image/svg+xml",
-                    purpose: "any maskable"
-                }]
-            };
+<nav class="chips" id="chips" aria-label="Filtrar por estatus"></nav>
+<section id="lista" aria-live="polite"></section>
 
-            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            const manifestUrl = URL.createObjectURL(manifestBlob);
+<footer>
+  <button class="pill" id="exp">⬇ Exportar datos (JSON)</button>
+  <button class="pill" id="imp">⬆ Importar datos (JSON)</button>
+  <input type="file" id="file" accept="application/json,.json" hidden>
+  <p>Todo se guarda solo en este dispositivo. Exporta un respaldo con frecuencia.</p>
+</footer>
+</main>
 
-            const manifestLink = document.createElement('link');
-            manifestLink.rel = 'manifest';
-            manifestLink.href = manifestUrl;
-            document.head.appendChild(manifestLink);
-
-            const faviconLink = document.createElement('link');
-            faviconLink.rel = 'icon';
-            faviconLink.href = iconUrl;
-            document.head.appendChild(faviconLink);
-
-            // Service Worker Registration
-            if ('serviceWorker' in navigator) {
-                const swCode = `
-                    const CACHE_NAME = 'service-orders-v1';
-                    self.addEventListener('install', (e) => {
-                        self.skipWaiting();
-                    });
-                    self.addEventListener('activate', (e) => {
-                        e.waitUntil(clients.claim());
-                    });
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            fetch(e.request).catch(() => caches.match(e.request))
-                        );
-                    });
-                `;
-                const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(swBlob);
-                
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register(swUrl).catch(err => console.log('SW Error:', err));
-                });
-            }
-        })();
-    </script>
-
-    <!-- Top Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-slate-900 leading-tight">Órdenes de Servicio</h1>
-                        <p class="text-xs text-slate-500 font-medium">Panel de Control Offline</p>
-                    </div>
-                </div>
-                <!-- Status Badge -->
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Local
-                </span>
-            </div>
-
-            <!-- Botones Superiores de Copiado Masivo -->
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-                <button onclick="copyBulkStatus('Abierto')" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200/80 transition-all active:scale-95">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                    Copiar Abiertos
-                </button>
-                <button onclick="copyBulkStatus('Pendiente')" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/80 transition-all active:scale-95">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                    Copiar Pendientes
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
-
-        <!-- Botón Principal Grande para Nueva Órden -->
-        <div class="bg-gradient-to-r from-brand-600 to-sky-600 rounded-2xl p-6 text-white shadow-lg shadow-brand-500/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-                <h2 class="text-xl font-bold">Gestión Rápida de Incidencias</h2>
-                <p class="text-sky-100 text-sm mt-1">Registra nuevos reportes con autocompletado inteligente por código de tienda.</p>
-            </div>
-            <button onclick="openNewModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white text-brand-700 hover:bg-slate-50 font-bold rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95 text-sm">
-                <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                Nueva Orden de Servicio
-            </button>
-        </div>
-
-        <!-- Buscador Inteligente -->
-        <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </div>
-            <input type="text" id="searchInput" oninput="renderOrders()" placeholder="Buscar rápidamente por ticket, tienda, equipo, coordinador, falla o estatus..." 
-                   class="w-full pl-11 pr-10 py-3.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm transition-all placeholder:text-slate-400">
-            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-
-        <!-- Barra de Filtros Rápidos y Ordenamiento -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <!-- Filtros por Estatus -->
-                <div class="flex flex-wrap items-center gap-1.5" id="statusFilterContainer">
-                    <button onclick="setStatusFilter('Todos')" data-filter="Todos" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
-                        Todos <span class="text-[10px] opacity-75 font-normal">(Excluye Cerrados)</span>
-                    </button>
-                    <button onclick="setStatusFilter('Abierto')" data-filter="Abierto" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
-                        Abiertos
-                    </button>
-                    <button onclick="setStatusFilter('Asignado')" data-filter="Asignado" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
-                        Asignados
-                    </button>
-                    <button onclick="setStatusFilter('Pendiente')" data-filter="Pendiente" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
-                        Pendientes
-                    </button>
-                    <button onclick="setStatusFilter('Cerrado')" data-filter="Cerrado" class="filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">
-                        Cerrados
-                    </button>
-                </div>
-
-                <!-- Selección de Ordenamiento -->
-                <div class="flex items-center gap-2 self-end lg:self-auto w-full lg:w-auto justify-end">
-                    <label for="sortSelect" class="text-xs font-medium text-slate-500 whitespace-nowrap">Ordenar por:</label>
-                    <select id="sortSelect" onchange="renderOrders()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg p-2 focus:ring-brand-500 focus:border-brand-500 font-medium cursor-pointer">
-                        <option value="date-desc">Fecha: Más reciente primero</option>
-                        <option value="date-asc">Fecha: Más antiguo primero</option>
-                        <option value="alpha-asc">Alfabético: Tienda (A-Z)</option>
-                        <option value="alpha-desc">Alfabético: Tienda (Z-A)</option>
-                        <option value="ticket-asc">Ticket (Ascendente)</option>
-                        <option value="ticket-desc">Ticket (Descendente)</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lista de Órdenes de Servicio -->
-        <div id="ordersList" class="space-y-3">
-            <!-- Renderizado dinámico -->
-        </div>
-
-        <!-- Estado Vacío -->
-        <div id="emptyState" class="hidden bg-white border border-dashed border-slate-300 rounded-2xl p-12 text-center">
-            <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-            </div>
-            <h3 class="text-slate-800 font-semibold text-base">No hay órdenes registradas</h3>
-            <p class="text-slate-500 text-xs mt-1 max-w-sm mx-auto">No se encontraron datos que coincidan con los filtros de búsqueda o estatus seleccionados.</p>
-        </div>
-
-    </main>
-
-    <!-- Footer: Importar / Exportar JSON -->
-    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="text-center sm:text-left">
-                <p class="text-xs font-semibold text-slate-700">Resguardo y Gestión de Datos Local</p>
-                <p class="text-[11px] text-slate-500">Tus datos se mantienen 100% privados en el almacenamiento local de este dispositivo.</p>
-            </div>
-            <div class="flex items-center gap-2.5 w-full sm:w-auto">
-                <button onclick="exportDataJSON()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-300/80 transition-all active:scale-95">
-                    <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Exportar Backup (JSON)
-                </button>
-                <label class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl border border-slate-300/80 transition-all cursor-pointer active:scale-95">
-                    <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    Importar Backup (JSON)
-                    <input type="file" id="importFileInput" accept=".json" onchange="importDataJSON(event)" class="hidden">
-                </label>
-            </div>
-        </div>
-    </footer>
-
-    <!-- MODAL: Formulario para Nueva / Editar Orden -->
-    <div id="orderModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative my-8">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                <h3 id="modalTitle" class="text-lg font-bold text-slate-900">Nueva Orden de Servicio</h3>
-                <button onclick="closeOrderModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <form id="orderForm" onsubmit="handleFormSubmit(event)" class="space-y-4 mt-4">
-                <input type="hidden" id="orderId">
-
-                <!-- Ticket -->
-                <div>
-                    <label for="ticketInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ticket / Folio *</label>
-                    <input type="text" id="ticketInput" required oninput="handleTicketInput()" placeholder="Ej. 55012-ABC" 
-                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                    <p class="text-[11px] text-slate-400 mt-1">Los primeros 5 dígitos detectan automáticamente Tienda y Coordinador previo.</p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Tienda -->
-                    <div>
-                        <label for="tiendaInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tienda *</label>
-                        <input type="text" id="tiendaInput" required placeholder="Nombre de la Sucursal" 
-                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                    </div>
-
-                    <!-- Estatus -->
-                    <div>
-                        <label for="statusInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Estatus *</label>
-                        <select id="statusInput" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white">
-                            <option value="Abierto">Abierto</option>
-                            <option value="Asignado">Asignado</option>
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Cerrado">Cerrado</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Equipo -->
-                    <div>
-                        <label for="equipoInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Equipo *</label>
-                        <input type="text" id="equipoInput" list="equipoOptions" required placeholder="Selecciona o escribe..." 
-                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        <datalist id="equipoOptions">
-                            <option value="Merrychef"></option>
-                            <option value="Bunn"></option>
-                            <option value="Nuvu"></option>
-                            <option value="Molino"></option>
-                            <option value="Licuadora"></option>
-                            <option value="Turbochef"></option>
-                            <option value="Báscula"></option>
-                            <option value="Otros"></option>
-                        </datalist>
-                    </div>
-
-                    <!-- Coordinador -->
-                    <div>
-                        <label for="coordinadorInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Coordinador *</label>
-                        <input type="text" id="coordinadorInput" required placeholder="Nombre del Encargado" 
-                               class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                    </div>
-                </div>
-
-                <!-- Falla -->
-                <div>
-                    <label for="fallaInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Falla Reportada *</label>
-                    <input type="text" id="fallaInput" required placeholder="Descripción breve de la falla técnica" 
-                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                </div>
-
-                <!-- Observaciones -->
-                <div>
-                    <label for="observacionesInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Observaciones</label>
-                    <textarea id="observacionesInput" rows="3" placeholder="Detalles adicionales, número de serie, repuestos..." 
-                              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"></textarea>
-                </div>
-
-                <!-- Botones del Formulario -->
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                    <button type="button" onclick="closeOrderModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
-                        Guardar Orden
-                    </button>
-                </div>
-            </form>
-        </div>
+<dialog id="fm">
+  <form method="dialog" id="form" autocomplete="off">
+    <div class="dh"><h2 id="ft">Nueva orden</h2><button type="button" class="x" data-act="close" aria-label="Cerrar">✕</button></div>
+    <div class="db">
+      <input type="hidden" id="id">
+      <label>Ticket<input id="ticket" required inputmode="text" placeholder="Los primeros 5 dígitos identifican la tienda"></label>
+      <div class="g2">
+        <label>Tienda<input id="tienda" placeholder="Nombre de la tienda"></label>
+        <label>Coordinador<input id="coordinador" placeholder="Nombre"></label>
+      </div>
+      <span class="hint" id="auto" hidden></span>
+      <div class="g2">
+        <label>Estatus<select id="estatus"></select></label>
+        <label>Equipo<select id="equipo"></select></label>
+      </div>
+      <label>Falla<textarea id="falla"></textarea></label>
+      <label>Observaciones<textarea id="observaciones"></textarea></label>
+      <div class="ts" id="fts"></div>
+      <div class="acts">
+        <button type="button" class="btn del" id="del" hidden>Eliminar</button>
+        <button type="submit" class="btn">Guardar</button>
+      </div>
     </div>
+  </form>
+</dialog>
 
-    <!-- MODAL: Histórico agrupado (Tienda / Coordinador) -->
-    <div id="groupModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-8 max-h-[85vh] flex flex-col">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                <div>
-                    <h3 id="groupModalTitle" class="text-lg font-bold text-slate-900">Órdenes Asociadas</h3>
-                    <p id="groupModalSubtitle" class="text-xs text-slate-500"></p>
-                </div>
-                <button onclick="closeGroupModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <div id="groupOrdersContainer" class="flex-1 overflow-y-auto custom-scrollbar my-4 space-y-3 pr-1">
-                <!-- Se inyectan las órdenes asociadas -->
-            </div>
-
-            <div class="pt-3 border-t border-slate-100 text-right">
-                <button onclick="closeGroupModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">
-                    Cerrar
-                </button>
-            </div>
-        </div>
+<dialog id="lm">
+  <div class="dh"><h2 id="lt"></h2><button class="x" data-act="close" aria-label="Cerrar">✕</button></div>
+  <div class="db">
+    <div class="toolbar">
+      <select id="lsort" aria-label="Ordenar">
+        <option value="fd">Fecha y hora ↓ (recientes)</option>
+        <option value="fa">Fecha y hora ↑ (antiguos)</option>
+        <option value="az">Alfabético A → Z</option>
+        <option value="za">Alfabético Z → A</option>
+      </select>
     </div>
+    <div id="ll" style="display:grid;gap:8px"></div>
+  </div>
+</dialog>
+<div id="toast" role="status"></div>
 
-    <!-- Toast de Notificaciones -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-medium border border-slate-800">
-            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            <span id="toastMessage">Notificación</span>
-        </div>
-    </div>
+<script>
+(()=>{
+const KEY='ordenes_servicio_v1';
+const ESTATUS=['Abierto','Cerrado','Asignado','Pendiente','Cancelado'];
+const EQUIPOS=['Merrychef','Turbochef','Bunn','NuVu','Molino','Licuadora','Báscula','Otros'];
+const FILTROS=[['todos','Todos'],['Abierto','Abiertos'],['Asignado','Asignados'],['Cerrado','Cerrados'],['Pendiente','Pendientes']];
+const LABELS={ticket:'Ticket',tienda:'Tienda',estatus:'Estatus',equipo:'Equipo',coordinador:'Coordinador',falla:'Falla',observaciones:'Observaciones'};
+const $=s=>document.querySelector(s);
+const ICO_CP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
+let orders=load(),filtro='todos',lctx=null,autoT=false,autoC=false;
 
-    <script>
-        const STORAGE_KEY = 'service_orders_db_v1';
-        let orders = [];
-        let currentStatusFilter = 'Todos';
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));return Array.isArray(d)?d:[]}catch(e){return[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(orders))}catch(e){toast('No se pudo guardar: almacenamiento lleno')}}
+const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const fecha=t=>new Date(t).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1800)}
+async function copy(txt,msg){
+  try{await navigator.clipboard.writeText(txt)}catch(e){const a=document.createElement('textarea');a.value=txt;a.style.position='fixed';a.style.opacity=0;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(_){}a.remove()}
+  toast(msg||'Copiado')
+}
+const line=o=>[o.ticket,o.tienda,o.equipo,o.coordinador,o.falla].join(' | ');
 
-        // Datos de muestra iniciales
-        const sampleData = [
-            {
-                id: 'ord_1',
-                ticket: '55012-01',
-                tienda: 'Tienda Centro 55012',
-                status: 'Abierto',
-                equipo: 'Merrychef',
-                coordinador: 'Juan Pérez',
-                falla: 'No calienta correctamente el horno superior',
-                observaciones: 'Revisión técnica urgente requerida',
-                timestamp: new Date(Date.now() - 3600000 * 5).toISOString()
-            },
-            {
-                id: 'ord_2',
-                ticket: '55012-02',
-                tienda: 'Tienda Centro 55012',
-                status: 'Pendiente',
-                equipo: 'Turbochef',
-                coordinador: 'Juan Pérez',
-                falla: 'Error de pantalla táctil no responde',
-                observaciones: 'Esperando repuesto de tarjeta madre',
-                timestamp: new Date(Date.now() - 3600000 * 24).toISOString()
-            },
-            {
-                id: 'ord_3',
-                ticket: '44089-01',
-                tienda: 'Tienda Norte 44089',
-                status: 'Asignado',
-                equipo: 'Bunn',
-                coordinador: 'Maria Gomez',
-                falla: 'Fuga de agua en el contenedor principal',
-                observaciones: 'Técnico en camino',
-                timestamp: new Date(Date.now() - 3600000 * 2).toISOString()
-            }
-        ];
+// ---------- selects ----------
+$('#estatus').innerHTML=ESTATUS.map(s=>`<option>${s}</option>`).join('');
+$('#equipo').innerHTML=EQUIPOS.map(s=>`<option>${s}</option>`).join('');
 
-        function loadOrders() {
-            try {
-                const data = localStorage.getItem(STORAGE_KEY);
-                if (data) {
-                    orders = JSON.parse(data);
-                } else {
-                    orders = sampleData;
-                    saveOrders();
-                }
-            } catch (e) {
-                console.error('Error cargando localStorage:', e);
-                orders = [];
-            }
-        }
+// ---------- lista principal ----------
+function row(o,f,link){
+  const v=o[f];
+  const val=v?(link?`<button class="lk" data-act="${link}" data-id="${o.id}">${h(v)}</button>`:h(v)):'<span style="color:var(--mu)">—</span>';
+  return `<div class="f"><span class="l">${LABELS[f]}</span><span class="v">${val}</span><button class="cp" data-act="copy" data-id="${o.id}" data-f="${f}" aria-label="Copiar ${LABELS[f]}">${ICO_CP}</button></div>`;
+}
+function card(o){
+  return `<article class="card" style="--c:var(--s-${o.estatus})">
+  <div class="top"><button class="tk" data-act="edit" data-id="${o.id}">${h(o.ticket)}</button>
+  <span class="badge">${h(o.estatus)}</span><span class="sp"></span>
+  <button class="cp" data-act="copyall" data-id="${o.id}" aria-label="Copiar toda la orden" title="Copiar todo">${ICO_CP}</button></div>
+  ${row(o,'tienda','tienda')}${row(o,'equipo')}${row(o,'coordinador','coord')}${row(o,'falla')}${row(o,'estatus')}${row(o,'observaciones')}
+  <div class="ts">${fecha(o.creado)}</div></article>`;
+}
+function hay(o){return norm([o.ticket,o.tienda,o.estatus,o.equipo,o.coordinador,o.falla,o.observaciones,fecha(o.creado)].join(' '))}
+function render(){
+  const q=norm($('#q').value.trim());
+  const vis=o=>filtro==='todos'?!['Cerrado','Cancelado'].includes(o.estatus):o.estatus===filtro;
+  $('#chips').innerHTML=FILTROS.map(([k,n])=>{const c=orders.filter(o=>k==='todos'?!['Cerrado','Cancelado'].includes(o.estatus):o.estatus===k).length;
+    return `<button class="chip" data-act="filtro" data-k="${k}" aria-pressed="${k===filtro}">${n}<small>${c}</small></button>`}).join('');
+  let list=orders.slice().sort((a,b)=>b.creado-a.creado);
+  list=q?list.filter(o=>hay(o).includes(q)):list.filter(vis);
+  $('#lista').innerHTML=list.length?list.map(card).join(''):
+    `<div class="empty">${q?'Sin resultados para esa búsqueda.':orders.length?'No hay órdenes en este filtro.':'Aún no hay órdenes. Toca “Nueva orden de servicio” para empezar.'}</div>`;
+}
 
-        function saveOrders() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-            } catch (e) {
-                showToast('Error al guardar en almacenamiento local');
-            }
-        }
+// ---------- formulario ----------
+function openForm(id){
+  const o=orders.find(x=>x.id===id)||null,f=$('#form');
+  f.reset();autoT=autoC=false;$('#auto').hidden=true;
+  $('#ft').textContent=o?'Editar orden':'Nueva orden';
+  $('#id').value=o?o.id:'';
+  for(const k of Object.keys(LABELS))$('#'+k).value=o?o[k]:(k==='estatus'?'Abierto':k==='equipo'?'Merrychef':'');
+  $('#del').hidden=!o;
+  $('#fts').textContent=o?'Creada: '+fecha(o.creado)+(o.editado?' · Editada: '+fecha(o.editado):''):'La fecha y hora se registran automáticamente al guardar.';
+  $('#fm').showModal();
+  if(!o)setTimeout(()=>$('#ticket').focus(),50);
+}
+$('#ticket').addEventListener('input',()=>{
+  const p=$('#ticket').value.trim().slice(0,5),id=$('#id').value;
+  if(p.length<5)return;
+  const m=orders.filter(o=>o.id!==id&&o.ticket.trim().slice(0,5)===p).sort((a,b)=>b.creado-a.creado)[0];
+  if(!m)return;
+  const t=$('#tienda'),c=$('#coordinador');
+  if(!t.value||autoT){t.value=m.tienda;autoT=true}
+  if(!c.value||autoC){c.value=m.coordinador;autoC=true}
+  $('#auto').textContent='Tienda y coordinador completados con la última orden de '+p;$('#auto').hidden=false;
+});
+$('#tienda').addEventListener('input',()=>autoT=false);
+$('#coordinador').addEventListener('input',()=>autoC=false);
+$('#form').addEventListener('submit',e=>{
+  e.preventDefault();
+  const d={};for(const k of Object.keys(LABELS))d[k]=$('#'+k).value.trim();
+  if(!d.ticket){toast('Escribe el número de ticket');return}
+  const id=$('#id').value;
+  if(id){const o=orders.find(x=>x.id===id);Object.assign(o,d,{editado:Date.now()})}
+  else orders.push({id:uid(),creado:Date.now(),...d});
+  save();$('#fm').close();render();refreshList();toast('Guardado');
+});
+$('#del').addEventListener('click',()=>{
+  if(!confirm('¿Eliminar esta orden? No se puede deshacer.'))return;
+  orders=orders.filter(o=>o.id!==$('#id').value);save();$('#fm').close();render();refreshList();toast('Eliminada');
+});
 
-        function getStatusBadgeClass(status) {
-            switch (status) {
-                case 'Abierto': return 'bg-sky-50 text-sky-700 border-sky-200';
-                case 'Asignado': return 'bg-purple-50 text-purple-700 border-purple-200';
-                case 'Pendiente': return 'bg-amber-50 text-amber-700 border-amber-200';
-                case 'Cerrado': return 'bg-slate-100 text-slate-600 border-slate-200';
-                default: return 'bg-slate-50 text-slate-700 border-slate-200';
-            }
-        }
+// ---------- lista por tienda / coordinador ----------
+function openList(type,id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  lctx={type,value:o[type]};$('#lsort').value='fd';refreshList();$('#lm').showModal();
+}
+function refreshList(){
+  if(!lctx||!$('#lm').open)return;
+  const {type,value}=lctx,s=$('#lsort').value;
+  const l=orders.filter(o=>o[type]===value);
+  l.sort((a,b)=>s==='fd'?b.creado-a.creado:s==='fa'?a.creado-b.creado:s==='az'?a.ticket.localeCompare(b.ticket,'es',{numeric:true}):b.ticket.localeCompare(a.ticket,'es',{numeric:true}));
+  $('#lt').textContent=(type==='tienda'?'Tienda: ':'Coordinador: ')+value+' ('+l.length+')';
+  $('#ll').innerHTML=l.map(o=>`<div class="lrow" style="--c:var(--s-${o.estatus})"><div class="top"><button class="tk" data-act="edit" data-id="${o.id}">${h(o.ticket)}</button><span class="badge">${h(o.estatus)}</span></div>
+  <div>${h(o.equipo)} · ${h(type==='tienda'?o.coordinador:o.tienda)}</div><div>${h(o.falla)}</div><div class="ts">${fecha(o.creado)}</div></div>`).join('')||'<div class="empty">Sin órdenes.</div>';
+}
+$('#lsort').addEventListener('change',refreshList);
 
-        function formatDate(isoString) {
-            if (!isoString) return '';
-            const d = new Date(isoString);
-            return d.toLocaleString('es-MX', {
-                year: 'numeric',
-                month: 'short',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
+// ---------- acciones ----------
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,id=b.dataset.id,o=orders.find(x=>x.id===id);
+  if(a==='nuevo')openForm();
+  else if(a==='edit'){$('#lm').close();openForm(id)}
+  else if(a==='tienda')openList('tienda',id);
+  else if(a==='coord')openList('coordinador',id);
+  else if(a==='filtro'){filtro=b.dataset.k;render()}
+  else if(a==='close')b.closest('dialog').close();
+  else if(a==='copy'&&o)copy(o[b.dataset.f],LABELS[b.dataset.f]+' copiado');
+  else if(a==='copyall'&&o)copy(Object.keys(LABELS).map(k=>LABELS[k]+': '+o[k]).join('\n'),'Orden copiada');
+  else if(a==='bulk'){
+    const l=orders.filter(x=>x.estatus===b.dataset.s).sort((x,y)=>x.creado-y.creado);
+    if(!l.length){toast('No hay órdenes '+(b.dataset.s==='Abierto'?'abiertas':'pendientes'));return}
+    copy(l.map(line).join('\n'),l.length+' copiadas');
+  }
+});
+$('#q').addEventListener('input',render);
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
+// ---------- exportar / importar ----------
+$('#exp').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify({app:'ordenes-servicio',version:1,exportado:new Date().toISOString(),ordenes:orders},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='ordenes-servicio-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Respaldo exportado');
+});
+$('#imp').addEventListener('click',()=>$('#file').click());
+$('#file').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const d=JSON.parse(await f.text()),arr=Array.isArray(d)?d:d.ordenes;
+    if(!Array.isArray(arr))throw 0;
+    const s=v=>String(v??'').slice(0,5000);
+    const clean=arr.filter(o=>o&&o.ticket).map(o=>({id:s(o.id)||uid(),creado:Number(o.creado)||Date.now(),editado:o.editado?Number(o.editado):undefined,
+      ticket:s(o.ticket),tienda:s(o.tienda),estatus:ESTATUS.includes(o.estatus)?o.estatus:'Abierto',equipo:s(o.equipo),coordinador:s(o.coordinador),falla:s(o.falla),observaciones:s(o.observaciones)}));
+    if(!confirm('Se combinarán '+clean.length+' órdenes con las actuales (si el ID coincide, se actualiza). ¿Continuar?'))return;
+    const m=new Map(orders.map(o=>[o.id,o]));clean.forEach(o=>m.set(o.id,o));
+    orders=[...m.values()];save();render();toast('Datos importados');
+  }catch(_){toast('Archivo JSON no válido')}
+});
 
-        function renderOrders() {
-            const listEl = document.getElementById('ordersList');
-            const emptyEl = document.getElementById('emptyState');
-            const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
-            const sortMode = document.getElementById('sortSelect').value;
-
-            document.getElementById('clearSearchBtn').classList.toggle('hidden', searchQuery === '');
-
-            // 1. Filtrado
-            let filtered = orders.filter(o => {
-                if (currentStatusFilter === 'Todos') {
-                    if (o.status === 'Cerrado') return false;
-                } else {
-                    if (o.status !== currentStatusFilter) return false;
-                }
-
-                if (searchQuery) {
-                    const matchText = `${o.ticket} ${o.tienda} ${o.equipo} ${o.coordinador} ${o.falla} ${o.status} ${o.observaciones || ''}`.toLowerCase();
-                    if (!matchText.includes(searchQuery)) return false;
-                }
-
-                return true;
-            });
-
-            // 2. Ordenamiento
-            filtered.sort((a, b) => {
-                if (sortMode === 'date-desc') return new Date(b.timestamp) - new Date(a.timestamp);
-                if (sortMode === 'date-asc') return new Date(a.timestamp) - new Date(b.timestamp);
-                if (sortMode === 'alpha-asc') return a.tienda.localeCompare(b.tienda);
-                if (sortMode === 'alpha-desc') return b.tienda.localeCompare(a.tienda);
-                if (sortMode === 'ticket-asc') return a.ticket.localeCompare(b.ticket);
-                if (sortMode === 'ticket-desc') return b.ticket.localeCompare(a.ticket);
-                return 0;
-            });
-
-            // Actualizar botones de pestaña
-            document.querySelectorAll('.filter-tab').forEach(btn => {
-                const f = btn.getAttribute('data-filter');
-                if (f === currentStatusFilter) {
-                    btn.className = 'filter-tab px-3.5 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white shadow-sm transition-all';
-                } else {
-                    btn.className = 'filter-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all';
-                }
-            });
-
-            if (filtered.length === 0) {
-                listEl.innerHTML = '';
-                emptyEl.classList.remove('hidden');
-                return;
-            }
-
-            emptyEl.classList.add('hidden');
-
-            listEl.innerHTML = filtered.map(order => `
-                <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
-                        <div class="flex items-center gap-2.5">
-                            <!-- Click en Ticket para editar -->
-                            <button onclick="openEditModal('${order.id}')" title="Pulsar para editar esta orden" 
-                                    class="text-base font-bold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1 group">
-                                <span>#${escapeHtml(order.ticket)}</span>
-                                <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                            </button>
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getStatusBadgeClass(order.status)}">
-                                ${escapeHtml(order.status)}
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-2 justify-between sm:justify-end text-xs text-slate-400">
-                            <span>${formatDate(order.timestamp)}</span>
-                            <!-- Botón Copiar Único -->
-                            <button onclick="copySingleOrder('${order.id}')" title="Copiar reporte al portapapeles" 
-                                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium rounded-lg border border-slate-200 text-xs transition-all active:scale-95">
-                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                Copiar
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-3 text-xs">
-                        <div>
-                            <span class="text-slate-400 block font-medium text-[11px]">Tienda</span>
-                            <!-- Click en Tienda para histórico -->
-                            <button onclick="openGroupModal('tienda', '${escapeJsString(order.tienda)}')" class="font-semibold text-slate-800 hover:text-brand-600 text-left hover:underline">
-                                ${escapeHtml(order.tienda)}
-                            </button>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block font-medium text-[11px]">Equipo</span>
-                            <span class="font-semibold text-slate-800">${escapeHtml(order.equipo)}</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block font-medium text-[11px]">Coordinador</span>
-                            <!-- Click en Coordinador para histórico -->
-                            <button onclick="openGroupModal('coordinador', '${escapeJsString(order.coordinador)}')" class="font-semibold text-slate-800 hover:text-brand-600 text-left hover:underline">
-                                ${escapeHtml(order.coordinador)}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 rounded-xl p-3 text-xs space-y-1 border border-slate-100">
-                        <div><strong class="text-slate-700">Falla:</strong> <span class="text-slate-600">${escapeHtml(order.falla)}</span></div>
-                        ${order.observaciones ? `<div><strong class="text-slate-700">Observaciones:</strong> <span class="text-slate-500">${escapeHtml(order.observaciones)}</span></div>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Lógica de autocompletado basada en los primeros 5 dígitos del Ticket
-        function handleTicketInput() {
-            const val = document.getElementById('ticketInput').value.trim();
-            if (val.length >= 5) {
-                const prefix = val.substring(0, 5);
-                const match = orders.find(o => o.ticket && o.ticket.startsWith(prefix));
-                if (match) {
-                    const tiendaInput = document.getElementById('tiendaInput');
-                    const coordInput = document.getElementById('coordinadorInput');
-                    
-                    if (!tiendaInput.value) tiendaInput.value = match.tienda;
-                    if (!coordInput.value) coordInput.value = match.coordinador;
-                }
-            }
-        }
-
-        function openNewModal() {
-            document.getElementById('orderId').value = '';
-            document.getElementById('orderForm').reset();
-            document.getElementById('modalTitle').textContent = 'Nueva Orden de Servicio';
-            document.getElementById('statusInput').value = 'Abierto';
-            document.getElementById('orderModal').classList.remove('hidden');
-        }
-
-        function openEditModal(id) {
-            const order = orders.find(o => o.id === id);
-            if (!order) return;
-
-            document.getElementById('orderId').value = order.id;
-            document.getElementById('ticketInput').value = order.ticket;
-            document.getElementById('tiendaInput').value = order.tienda;
-            document.getElementById('statusInput').value = order.status;
-            document.getElementById('equipoInput').value = order.equipo;
-            document.getElementById('coordinadorInput').value = order.coordinador;
-            document.getElementById('fallaInput').value = order.falla;
-            document.getElementById('observacionesInput').value = order.observaciones || '';
-
-            document.getElementById('modalTitle').textContent = `Editar Orden #${order.ticket}`;
-            document.getElementById('orderModal').classList.remove('hidden');
-        }
-
-        function closeOrderModal() {
-            document.getElementById('orderModal').classList.add('hidden');
-        }
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
-
-            const id = document.getElementById('orderId').value;
-            const ticket = document.getElementById('ticketInput').value.trim();
-            const tienda = document.getElementById('tiendaInput').value.trim();
-            const status = document.getElementById('statusInput').value;
-            const equipo = document.getElementById('equipoInput').value.trim();
-            const coordinador = document.getElementById('coordinadorInput').value.trim();
-            const falla = document.getElementById('fallaInput').value.trim();
-            const observaciones = document.getElementById('observacionesInput').value.trim();
-
-            if (id) {
-                const index = orders.findIndex(o => o.id === id);
-                if (index !== -1) {
-                    orders[index] = {
-                        ...orders[index],
-                        ticket, tienda, status, equipo, coordinador, falla, observaciones
-                    };
-                    showToast('Orden actualizada correctamente');
-                }
-            } else {
-                const newOrder = {
-                    id: 'ord_' + Date.now(),
-                    ticket,
-                    tienda,
-                    status,
-                    equipo,
-                    coordinador,
-                    falla,
-                    observaciones,
-                    timestamp: new Date().toISOString()
-                };
-                orders.unshift(newOrder);
-                showToast('Nueva orden registrada con éxito');
-            }
-
-            saveOrders();
-            renderOrders();
-            closeOrderModal();
-        }
-
-        function openGroupModal(type, value) {
-            const titleEl = document.getElementById('groupModalTitle');
-            const subtitleEl = document.getElementById('groupModalSubtitle');
-            const container = document.getElementById('groupOrdersContainer');
-
-            const matches = orders.filter(o => {
-                if (type === 'tienda') return o.tienda.toLowerCase() === value.toLowerCase();
-                if (type === 'coordinador') return o.coordinador.toLowerCase() === value.toLowerCase();
-                return false;
-            });
-
-            titleEl.textContent = type === 'tienda' ? `Tienda: ${value}` : `Coordinador: ${value}`;
-            subtitleEl.textContent = `Total de ${matches.length} reporte(s) registrado(s)`;
-
-            container.innerHTML = matches.map(o => `
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1.5">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-brand-600">Ticket: #${escapeHtml(o.ticket)}</span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadgeClass(o.status)}">
-                            ${escapeHtml(o.status)}
-                        </span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-slate-600">
-                        <div><strong>Equipo:</strong> ${escapeHtml(o.equipo)}</div>
-                        <div><strong>Fecha:</strong> ${formatDate(o.timestamp)}</div>
-                    </div>
-                    <div class="text-slate-700"><strong>Falla:</strong> ${escapeHtml(o.falla)}</div>
-                </div>
-            `).join('');
-
-            document.getElementById('groupModal').classList.remove('hidden');
-        }
-
-        function closeGroupModal() {
-            document.getElementById('groupModal').classList.add('hidden');
-        }
-
-        function copyToClipboardText(text, successMsg) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showToast(successMsg);
-            } catch (err) {
-                showToast('Error al copiar al portapapeles');
-            }
-            document.body.removeChild(textarea);
-        }
-
-        function copySingleOrder(id) {
-            const o = orders.find(item => item.id === id);
-            if (!o) return;
-
-            const text = `Ticket: ${o.ticket}\nTienda: ${o.tienda}\nEquipo: ${o.equipo}\nCoordinador: ${o.coordinador}\nFalla: ${o.falla}\nStatus: ${o.status}\nObservaciones: ${o.observaciones || 'N/A'}`;
-            copyToClipboardText(text, 'Datos de la orden copiados');
-        }
-
-        function copyBulkStatus(statusTarget) {
-            const matches = orders.filter(o => o.status === statusTarget);
-            if (matches.length === 0) {
-                showToast(`No hay reportes con estatus ${statusTarget}`);
-                return;
-            }
-
-            const textList = matches.map((o, idx) => {
-                return `${idx + 1}. Ticket: ${o.ticket} | Tienda: ${o.tienda} | Equipo: ${o.equipo} | Coordinador: ${o.coordinador} | Falla: ${o.falla}`;
-            }).join('\n\n');
-
-            copyToClipboardText(textList, `${matches.length} reportes (${statusTarget}) copiados`);
-        }
-
-        function setStatusFilter(status) {
-            currentStatusFilter = status;
-            renderOrders();
-        }
-
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            renderOrders();
-        }
-
-        function exportDataJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orders, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `ordenes_servicio_backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showToast('Backup JSON descargado');
-        }
-
-        function importDataJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        orders = imported;
-                        saveOrders();
-                        renderOrders();
-                        showToast('Base de datos importada con éxito');
-                    } else {
-                        showToast('El archivo JSON no tiene un formato válido');
-                    }
-                } catch (err) {
-                    showToast('Error al leer el archivo JSON');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, "&amp;")
-                      .replace(/</g, "&lt;")
-                      .replace(/>/g, "&gt;")
-                      .replace(/"/g, "&quot;")
-                      .replace(/'/g, "&#039;");
-        }
-
-        function escapeJsString(str) {
-            if (!str) return '';
-            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-        }
-
-        window.onload = function() {
-            loadOrders();
-            renderOrders();
-        };
-    </script>
+render();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));
+})();
+</script>
 </body>
 </html>
