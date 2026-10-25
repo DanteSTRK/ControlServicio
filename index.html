@@ -1,313 +1,1742 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Órdenes de servicio</title>
-<meta name="theme-color" content="#0f766e">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<style>
-:root{--bg:#f4f6f5;--card:#fff;--tx:#10201e;--mu:#62736f;--ln:#e0e7e5;--ac:#0f766e;--ac2:#0b5d57;--acs:#d9f0ec;--dg:#b42318;
---s-Abierto:#0f766e;--s-Asignado:#2563eb;--s-Pendiente:#b7791f;--s-Cerrado:#64748b;--s-Cancelado:#b42318}
-@media(prefers-color-scheme:dark){:root{--bg:#0d1514;--card:#16201f;--tx:#e8f0ee;--mu:#8fa39f;--ln:#26332f;--ac:#2dd4bf;--ac2:#5eead4;--acs:#12332f;--dg:#f87171;
---s-Abierto:#2dd4bf;--s-Asignado:#60a5fa;--s-Pendiente:#fbbf24;--s-Cerrado:#94a3b8;--s-Cancelado:#f87171}}
-*{box-sizing:border-box;margin:0}
-body{font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-main{max-width:720px;margin:0 auto;padding:16px}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer;border:0;background:none}
-:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-h1{font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
-.bulk{display:flex;gap:6px}
-.pill{border:1px solid var(--ln);background:var(--card);padding:7px 12px;border-radius:99px;font-size:.82rem;font-weight:600;display:inline-flex;gap:6px;align-items:center}
-.pill:hover{border-color:var(--ac)}
-.big{width:100%;background:var(--ac);color:#fff;border-radius:20px;padding:26px 16px;font-size:1.3rem;font-weight:700;display:flex;justify-content:center;align-items:center;gap:12px;box-shadow:0 8px 24px -10px var(--ac);transition:transform .1s}
-@media(prefers-color-scheme:dark){.big{color:#042f2a}}
-.big:active{transform:scale(.98)}
-.big svg{width:28px;height:28px}
-.search{margin:14px 0 10px;position:relative}
-.search input{width:100%;padding:13px 14px 13px 42px;border-radius:14px;border:1px solid var(--ln);background:var(--card)}
-.search svg{position:absolute;left:14px;top:14px;width:18px;height:18px;color:var(--mu)}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
-.chip{white-space:nowrap;padding:8px 14px;border-radius:99px;background:var(--card);border:1px solid var(--ln);font-size:.85rem;font-weight:600;color:var(--mu)}
-.chip[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:#fff}
-@media(prefers-color-scheme:dark){.chip[aria-pressed=true]{color:#042f2a}}
-.chip small{opacity:.75;margin-left:4px}
-#lista{display:grid;gap:10px}
-.card{background:var(--card);border:1px solid var(--ln);border-left:4px solid var(--c,var(--ln));border-radius:14px;padding:12px 14px}
-.top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.tk{font-weight:700;font-size:1.05rem;color:var(--ac);text-decoration:underline;text-underline-offset:3px;text-align:left}
-.badge{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:99px;color:var(--c);border:1px solid var(--c);display:inline-flex;align-items:center;gap:4px}
-.sp{flex:1}
-.f{display:flex;align-items:flex-start;gap:6px;padding:4px 0;border-top:1px solid var(--ln);font-size:.9rem}
-.f:first-of-type{border-top:0}
-.l{width:92px;flex:none;color:var(--mu);font-size:.8rem;padding-top:1px}
-.v{flex:1;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
-.lk{font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:left;color:var(--tx)}
-.cp{flex:none;width:30px;height:30px;border-radius:8px;color:var(--mu);display:grid;place-items:center}
-.cp:hover{background:var(--acs);color:var(--ac)}
-.cp svg{width:16px;height:16px}
-.ts{font-size:.75rem;color:var(--mu);margin-top:4px}
-.empty{text-align:center;color:var(--mu);padding:36px 12px;border:1px dashed var(--ln);border-radius:14px}
-footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--ln);display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-footer p{width:100%;text-align:center;color:var(--mu);font-size:.78rem}
-dialog{border:0;border-radius:20px;padding:0;width:min(560px,94vw);max-height:92vh;background:var(--bg);color:var(--tx);box-shadow:0 20px 60px rgba(0,0,0,.35)}
-dialog::backdrop{background:rgba(0,0,0,.5)}
-.dh{display:flex;justify-content:space-between;align-items:center;padding:16px 18px 8px;position:sticky;top:0;background:var(--bg);z-index:1}
-.dh h2{font-size:1.1rem}
-.x{width:34px;height:34px;border-radius:50%;background:var(--card);border:1px solid var(--ln);font-size:1.1rem}
-.db{padding:6px 18px 18px;display:grid;gap:12px}
-label{display:grid;gap:5px;font-size:.82rem;font-weight:600;color:var(--mu)}
-label input,label select,label textarea{padding:11px 12px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font-weight:400;font-size:1rem}
-textarea{min-height:76px;resize:vertical}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.acts{display:flex;gap:8px;margin-top:4px}
-.btn{flex:1;padding:13px;border-radius:12px;font-weight:700;background:var(--ac);color:#fff}
-@media(prefers-color-scheme:dark){.btn{color:#042f2a}}
-.btn.del{flex:none;background:none;color:var(--dg);border:1px solid var(--dg)}
-.hint{font-size:.75rem;color:var(--ac);font-weight:500}
-.lrow{background:var(--card);border:1px solid var(--ln);border-left:4px solid var(--c);border-radius:12px;padding:10px 12px;font-size:.88rem}
-.lrow .top{margin:0 0 4px}
-.toolbar{display:flex;gap:8px;align-items:center}
-.toolbar select{flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--ln);background:var(--card);color:var(--tx)}
-#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:.88rem;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:99}
-#toast.on{opacity:1;transform:translate(-50%,0)}
-@media(max-width:420px){.l{width:78px}.g2{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Gestor de órdenes de servicio 100% offline con autocompletado por tienda y exportación JSON." />
+  <title>Gestor de Órdenes de Servicio</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-hover: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --info: #0ea5e9;
+      --info-soft: #f0f9ff;
+      --neutral: #64748b;
+      --neutral-soft: #f1f5f9;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+      --shadow-lg: 0 10px 25px -3px rgba(15, 23, 42, 0.12), 0 4px 6px -4px rgba(15, 23, 42, 0.06);
+      --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1120;
+        --surface: #1e293b;
+        --surface-hover: #334155;
+        --border: #334155;
+        --text: #f8fafc;
+        --text-muted: #94a3b8;
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --primary-soft: rgba(59, 130, 246, 0.15);
+        --success-soft: rgba(16, 185, 129, 0.15);
+        --warning-soft: rgba(245, 158, 11, 0.15);
+        --danger-soft: rgba(239, 68, 68, 0.15);
+        --info-soft: rgba(14, 165, 233, 0.15);
+        --neutral-soft: rgba(100, 116, 139, 0.2);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1;
+    }
+
+    /* Header & Bulk Copy Actions */
+    .app-header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-title h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .offline-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--success-soft);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .top-bulk-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-bulk {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.84rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-bulk:hover {
+      background: var(--surface-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-bulk:active {
+      transform: translateY(0);
+    }
+
+    .btn-bulk.abiertos {
+      border-left: 4px solid var(--danger);
+    }
+
+    .btn-bulk.pendientes {
+      border-left: 4px solid var(--warning);
+    }
+
+    .badge-count {
+      background: var(--neutral-soft);
+      color: var(--text);
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Main CTA Button */
+    .btn-main-new {
+      width: 100%;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      border: none;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: #ffffff;
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-main-new:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-main-new:active {
+      transform: translateY(0);
+    }
+
+    /* Search Box */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 13px 40px 13px 42px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 1rem;
+      display: none;
+    }
+
+    /* Filters & Sorting Bar */
+    .controls-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .status-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .status-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      padding: 8px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 0.83rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .tab-btn .tab-num {
+      font-size: 0.72rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(100, 116, 139, 0.18);
+      color: inherit;
+    }
+
+    .tab-btn.active .tab-num {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .sort-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .sort-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .sort-btn {
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .sort-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Orders List & Cards */
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .order-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 15px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+
+    .order-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .ticket-trigger {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      padding: 5px 11px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .ticket-trigger:hover {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .card-top-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .status-Abierto {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+    .status-Asignado {
+      background: var(--info-soft);
+      color: var(--info);
+    }
+    .status-Pendiente {
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
+    .status-Cerrado {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+    .status-Cancelado {
+      background: var(--neutral-soft);
+      color: var(--neutral);
+    }
+
+    .btn-copy-card {
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-copy-card:hover {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 8px 14px;
+      margin-bottom: 10px;
+    }
+
+    .field-item {
+      font-size: 0.86rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .field-value {
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .interactive-chip {
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: left;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .interactive-chip:hover {
+      color: var(--primary-hover);
+    }
+
+    .card-details {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .detail-row strong {
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .card-footer {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+    }
+
+    /* Footer JSON Export/Import */
+    .app-footer {
+      margin-top: auto;
+      padding: 20px 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      padding: 11px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-hover);
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 540px;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      animation: modalFadeIn 0.18s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 2;
+    }
+
+    .modal-header h2 {
+      font-size: 1.08rem;
+      font-weight: 700;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.35rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .modal-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .autofill-hint {
+      font-size: 0.72rem;
+      color: var(--success);
+      font-weight: 600;
+      display: none;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 68px;
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--surface);
+      position: sticky;
+      bottom: 0;
+    }
+
+    .modal-footer-right {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .btn-primary {
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-danger {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: var(--danger-soft);
+      color: var(--danger);
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #ffffff;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 2000;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 560px) {
+      .top-bulk-bar,
+      .form-row,
+      .footer-actions {
+        grid-template-columns: 1fr;
+      }
+      .sort-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
 <body>
-<main>
-<header>
-  <h1>Órdenes de servicio</h1>
-  <div class="bulk">
-    <button class="pill" data-act="bulk" data-s="Abierto">Copiar abiertos</button>
-    <button class="pill" data-act="bulk" data-s="Pendiente">Copiar pendientes</button>
+
+  <div class="container">
+    <!-- Top Header & Bulk Copy Actions -->
+    <header class="app-header">
+      <div class="brand-row">
+        <div class="brand-title">
+          <div class="brand-logo" aria-hidden="true">OS</div>
+          <h1>Órdenes de Servicio</h1>
+        </div>
+        <span class="offline-pill" title="Datos guardados localmente en este dispositivo">
+          ● 100% Offline
+        </span>
+      </div>
+
+      <!-- Botones superiores para copiar reportes Abiertos y Pendientes -->
+      <div class="top-bulk-bar">
+        <button type="button" class="btn-bulk abiertos" id="btnCopyAllAbiertos">
+          <span>📋 Copiar Abiertos</span>
+          <span class="badge-count" id="countBulkAbiertos">0</span>
+        </button>
+        <button type="button" class="btn-bulk pendientes" id="btnCopyAllPendientes">
+          <span>📋 Copiar Pendientes</span>
+          <span class="badge-count" id="countBulkPendientes">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Botón Grande de Acceso Directo a Nueva Orden -->
+    <button type="button" class="btn-main-new" id="btnNewOrder">
+      <span>＋ Nueva Orden de Servicio</span>
+    </button>
+
+    <!-- Buscador Rápido -->
+    <div class="search-wrapper">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        id="searchInput"
+        class="search-input"
+        placeholder="Buscar por Ticket, Tienda, Coordinador, Equipo, Falla, Observaciones..."
+        autocomplete="off"
+      />
+      <button type="button" class="search-clear" id="btnClearSearch" title="Limpiar búsqueda">✕</button>
+    </div>
+
+    <!-- Filtros por Estatus y Ordenamiento -->
+    <section class="controls-section">
+      <div class="status-tabs" id="statusTabs" role="tablist">
+        <button type="button" class="tab-btn active" data-status="Todos">
+          Todos (Activos) <span class="tab-num" id="tabCountTodos">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-status="Abierto">
+          Abiertos <span class="tab-num" id="tabCountAbierto">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-status="Asignado">
+          Asignados <span class="tab-num" id="tabCountAsignado">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-status="Pendiente">
+          Pendientes <span class="tab-num" id="tabCountPendiente">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-status="Cerrado">
+          Cerrados <span class="tab-num" id="tabCountCerrado">0</span>
+        </button>
+        <button type="button" class="tab-btn" data-status="Cancelado">
+          Cancelados <span class="tab-num" id="tabCountCancelado">0</span>
+        </button>
+      </div>
+
+      <div class="sort-bar">
+        <span class="sort-label">Ordenar por:</span>
+        <div class="sort-buttons" id="sortButtons">
+          <button type="button" class="sort-btn active" data-sort="time-desc">Fecha/Hora ↓ (Recientes)</button>
+          <button type="button" class="sort-btn" data-sort="time-asc">Fecha/Hora ↑ (Antiguos)</button>
+          <button type="button" class="sort-btn" data-sort="alpha-asc">Alfabético A→Z</button>
+          <button type="button" class="sort-btn" data-sort="alpha-desc">Alfabético Z→A</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lista de Órdenes de Servicio -->
+    <main id="ordersList" class="orders-list" aria-live="polite"></main>
   </div>
-</header>
 
-<button class="big" data-act="nuevo">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-  Nueva orden de servicio
-</button>
-
-<div class="search">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-  <input id="q" type="search" placeholder="Buscar ticket, tienda, falla, coordinador…" autocomplete="off">
-</div>
-
-<nav class="chips" id="chips" aria-label="Filtrar por estatus"></nav>
-<section id="lista" aria-live="polite"></section>
-
-<footer>
-  <button class="pill" id="exp">⬇ Exportar datos (JSON)</button>
-  <button class="pill" id="imp">⬆ Importar datos (JSON)</button>
-  <input type="file" id="file" accept="application/json,.json" hidden>
-  <p>Todo se guarda solo en este dispositivo. Exporta un respaldo con frecuencia.</p>
-</footer>
-</main>
-
-<dialog id="fm">
-  <form method="dialog" id="form" autocomplete="off">
-    <div class="dh"><h2 id="ft">Nueva orden</h2><button type="button" class="x" data-act="close" aria-label="Cerrar">✕</button></div>
-    <div class="db">
-      <input type="hidden" id="id">
-      <label>Ticket<input id="ticket" required inputmode="text" placeholder="Los primeros 5 dígitos identifican la tienda"></label>
-      <div class="g2">
-        <label>Tienda<input id="tienda" placeholder="Nombre de la tienda"></label>
-        <label>Coordinador<input id="coordinador" placeholder="Nombre"></label>
+  <!-- Pie de Página: Exportar / Importar JSON Local -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="footer-title">
+        <span>Respaldo Local Seguro (JSON)</span>
+        <span id="totalStorageCount">0 registros guardados</span>
       </div>
-      <span class="hint" id="auto" hidden></span>
-      <div class="g2">
-        <label>Estatus<select id="estatus"></select></label>
-        <label>Equipo<select id="equipo"></select></label>
-      </div>
-      <label>Falla<textarea id="falla"></textarea></label>
-      <label>Observaciones<textarea id="observaciones"></textarea></label>
-      <div class="ts" id="fts"></div>
-      <div class="acts">
-        <button type="button" class="btn del" id="del" hidden>Eliminar</button>
-        <button type="submit" class="btn">Guardar</button>
+      <div class="footer-actions">
+        <button type="button" class="btn-secondary" id="btnExportJson">
+          ⬇️ Exportar datos a JSON
+        </button>
+        <button type="button" class="btn-secondary" id="btnImportJson">
+          ⬆️ Importar archivo JSON
+        </button>
+        <input type="file" id="fileInputJson" accept=".json,application/json" style="display: none;" />
       </div>
     </div>
-  </form>
-</dialog>
+  </footer>
 
-<dialog id="lm">
-  <div class="dh"><h2 id="lt"></h2><button class="x" data-act="close" aria-label="Cerrar">✕</button></div>
-  <div class="db">
-    <div class="toolbar">
-      <select id="lsort" aria-label="Ordenar">
-        <option value="fd">Fecha y hora ↓ (recientes)</option>
-        <option value="fa">Fecha y hora ↑ (antiguos)</option>
-        <option value="az">Alfabético A → Z</option>
-        <option value="za">Alfabético Z → A</option>
-      </select>
+  <!-- Modal Crear / Editar Orden de Servicio -->
+  <div class="modal-backdrop" id="orderModal" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="orderModalTitle">Nueva Orden de Servicio</h2>
+        <button type="button" class="btn-close" id="btnCloseOrderModal" aria-label="Cerrar">✕</button>
+      </div>
+      <form id="orderForm">
+        <div class="modal-body">
+          <input type="hidden" id="orderIdInput" />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ticketInput">
+                <span>Ticket *</span>
+                <span class="autofill-hint" id="autofillBadge">✓ Tienda detectada</span>
+              </label>
+              <input
+                type="text"
+                id="ticketInput"
+                class="form-control"
+                placeholder="Ej. 10425-8891"
+                required
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="estatusInput">Estatus *</label>
+              <select id="estatusInput" class="form-control" required>
+                <option value="Abierto">Abierto</option>
+                <option value="Asignado">Asignado</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Cerrado">Cerrado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tiendaInput">Tienda *</label>
+              <input
+                type="text"
+                id="tiendaInput"
+                class="form-control"
+                placeholder="Nombre o sucursal"
+                required
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="coordinadorInput">Coordinador *</label>
+              <input
+                type="text"
+                id="coordinadorInput"
+                class="form-control"
+                placeholder="Nombre del coordinador"
+                required
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="equipoInput">Equipo *</label>
+            <select id="equipoInput" class="form-control" required>
+              <option value="Merrychef">Merrychef</option>
+              <option value="Turbochef">Turbochef</option>
+              <option value="Bunn">Bunn</option>
+              <option value="NuVu">NuVu</option>
+              <option value="Molino">Molino</option>
+              <option value="Licuadora">Licuadora</option>
+              <option value="Báscula">Báscula</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="fallaInput">Falla reportada *</label>
+            <textarea
+              id="fallaInput"
+              class="form-control"
+              placeholder="Descripción breve de la falla..."
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="observacionesInput">Observaciones</label>
+            <textarea
+              id="observacionesInput"
+              class="form-control"
+              placeholder="Notas adicionales, refacciones, seguimiento..."
+            ></textarea>
+          </div>
+
+          <div id="timestampPreview" style="font-size: 0.78rem; color: var(--text-muted);"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-danger" id="btnDeleteOrder" style="display: none;">
+            🗑 Eliminar
+          </button>
+          <div class="modal-footer-right">
+            <button type="button" class="btn-secondary" id="btnCancelOrderModal">Cancelar</button>
+            <button type="submit" class="btn-primary" id="btnSaveOrder">Guardar Orden</button>
+          </div>
+        </div>
+      </form>
     </div>
-    <div id="ll" style="display:grid;gap:8px"></div>
   </div>
-</dialog>
-<div id="toast" role="status"></div>
 
-<script>
-(()=>{
-const KEY='ordenes_servicio_v1';
-const ESTATUS=['Abierto','Cerrado','Asignado','Pendiente','Cancelado'];
-const EQUIPOS=['Merrychef','Turbochef','Bunn','NuVu','Molino','Licuadora','Báscula','Otros'];
-const FILTROS=[['todos','Todos'],['Abierto','Abiertos'],['Asignado','Asignados'],['Cerrado','Cerrados'],['Pendiente','Pendientes']];
-const LABELS={ticket:'Ticket',tienda:'Tienda',estatus:'Estatus',equipo:'Equipo',coordinador:'Coordinador',falla:'Falla',observaciones:'Observaciones'};
-const $=s=>document.querySelector(s);
-const ICO_CP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
-let orders=load(),filtro='todos',lctx=null,autoT=false,autoC=false;
+  <!-- Modal Vista Filtrada por Tienda o Coordinador -->
+  <div class="modal-backdrop" id="groupModal" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <h2 id="groupModalTitle">Historial</h2>
+        <button type="button" class="btn-close" id="btnCloseGroupModal" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="sort-bar" style="margin-bottom: 4px;">
+          <span class="sort-label" id="groupSubtitle">Tickets relacionados</span>
+          <div class="sort-buttons" id="groupSortButtons">
+            <button type="button" class="sort-btn active" data-gsort="time-desc">Fecha ↓</button>
+            <button type="button" class="sort-btn" data-gsort="time-asc">Fecha ↑</button>
+            <button type="button" class="sort-btn" data-gsort="alpha-asc">A→Z</button>
+            <button type="button" class="sort-btn" data-gsort="alpha-desc">Z→A</button>
+          </div>
+        </div>
+        <div id="groupOrdersList" class="orders-list" style="margin-bottom: 0;"></div>
+      </div>
+    </div>
+  </div>
 
-function load(){try{const d=JSON.parse(localStorage.getItem(KEY));return Array.isArray(d)?d:[]}catch(e){return[]}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(orders))}catch(e){toast('No se pudo guardar: almacenamiento lleno')}}
-const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const norm=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const fecha=t=>new Date(t).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'});
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1800)}
-async function copy(txt,msg){
-  try{await navigator.clipboard.writeText(txt)}catch(e){const a=document.createElement('textarea');a.value=txt;a.style.position='fixed';a.style.opacity=0;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(_){}a.remove()}
-  toast(msg||'Copiado')
-}
-const line=o=>[o.ticket,o.tienda,o.equipo,o.coordinador,o.falla].join(' | ');
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-// ---------- selects ----------
-$('#estatus').innerHTML=ESTATUS.map(s=>`<option>${s}</option>`).join('');
-$('#equipo').innerHTML=EQUIPOS.map(s=>`<option>${s}</option>`).join('');
+  <script>
+    (function () {
+      'use strict';
 
-// ---------- lista principal ----------
-function row(o,f,link){
-  const v=o[f];
-  const val=v?(link?`<button class="lk" data-act="${link}" data-id="${o.id}">${h(v)}</button>`:h(v)):'<span style="color:var(--mu)">—</span>';
-  return `<div class="f"><span class="l">${LABELS[f]}</span><span class="v">${val}</span><button class="cp" data-act="copy" data-id="${o.id}" data-f="${f}" aria-label="Copiar ${LABELS[f]}">${ICO_CP}</button></div>`;
-}
-function card(o){
-  return `<article class="card" style="--c:var(--s-${o.estatus})">
-  <div class="top"><button class="tk" data-act="edit" data-id="${o.id}">${h(o.ticket)}</button>
-  <span class="badge">${h(o.estatus)}</span><span class="sp"></span>
-  <button class="cp" data-act="copyall" data-id="${o.id}" aria-label="Copiar toda la orden" title="Copiar todo">${ICO_CP}</button></div>
-  ${row(o,'tienda','tienda')}${row(o,'equipo')}${row(o,'coordinador','coord')}${row(o,'falla')}${row(o,'estatus')}${row(o,'observaciones')}
-  <div class="ts">${fecha(o.creado)}</div></article>`;
-}
-function hay(o){return norm([o.ticket,o.tienda,o.estatus,o.equipo,o.coordinador,o.falla,o.observaciones,fecha(o.creado)].join(' '))}
-function render(){
-  const q=norm($('#q').value.trim());
-  const vis=o=>filtro==='todos'?!['Cerrado','Cancelado'].includes(o.estatus):o.estatus===filtro;
-  $('#chips').innerHTML=FILTROS.map(([k,n])=>{const c=orders.filter(o=>k==='todos'?!['Cerrado','Cancelado'].includes(o.estatus):o.estatus===k).length;
-    return `<button class="chip" data-act="filtro" data-k="${k}" aria-pressed="${k===filtro}">${n}<small>${c}</small></button>`}).join('');
-  let list=orders.slice().sort((a,b)=>b.creado-a.creado);
-  list=q?list.filter(o=>hay(o).includes(q)):list.filter(vis);
-  $('#lista').innerHTML=list.length?list.map(card).join(''):
-    `<div class="empty">${q?'Sin resultados para esa búsqueda.':orders.length?'No hay órdenes en este filtro.':'Aún no hay órdenes. Toca “Nueva orden de servicio” para empezar.'}</div>`;
-}
+      const STORAGE_KEY = 'gestor_ordenes_servicio_v1';
 
-// ---------- formulario ----------
-function openForm(id){
-  const o=orders.find(x=>x.id===id)||null,f=$('#form');
-  f.reset();autoT=autoC=false;$('#auto').hidden=true;
-  $('#ft').textContent=o?'Editar orden':'Nueva orden';
-  $('#id').value=o?o.id:'';
-  for(const k of Object.keys(LABELS))$('#'+k).value=o?o[k]:(k==='estatus'?'Abierto':k==='equipo'?'Merrychef':'');
-  $('#del').hidden=!o;
-  $('#fts').textContent=o?'Creada: '+fecha(o.creado)+(o.editado?' · Editada: '+fecha(o.editado):''):'La fecha y hora se registran automáticamente al guardar.';
-  $('#fm').showModal();
-  if(!o)setTimeout(()=>$('#ticket').focus(),50);
-}
-$('#ticket').addEventListener('input',()=>{
-  const p=$('#ticket').value.trim().slice(0,5),id=$('#id').value;
-  if(p.length<5)return;
-  const m=orders.filter(o=>o.id!==id&&o.ticket.trim().slice(0,5)===p).sort((a,b)=>b.creado-a.creado)[0];
-  if(!m)return;
-  const t=$('#tienda'),c=$('#coordinador');
-  if(!t.value||autoT){t.value=m.tienda;autoT=true}
-  if(!c.value||autoC){c.value=m.coordinador;autoC=true}
-  $('#auto').textContent='Tienda y coordinador completados con la última orden de '+p;$('#auto').hidden=false;
-});
-$('#tienda').addEventListener('input',()=>autoT=false);
-$('#coordinador').addEventListener('input',()=>autoC=false);
-$('#form').addEventListener('submit',e=>{
-  e.preventDefault();
-  const d={};for(const k of Object.keys(LABELS))d[k]=$('#'+k).value.trim();
-  if(!d.ticket){toast('Escribe el número de ticket');return}
-  const id=$('#id').value;
-  if(id){const o=orders.find(x=>x.id===id);Object.assign(o,d,{editado:Date.now()})}
-  else orders.push({id:uid(),creado:Date.now(),...d});
-  save();$('#fm').close();render();refreshList();toast('Guardado');
-});
-$('#del').addEventListener('click',()=>{
-  if(!confirm('¿Eliminar esta orden? No se puede deshacer.'))return;
-  orders=orders.filter(o=>o.id!==$('#id').value);save();$('#fm').close();render();refreshList();toast('Eliminada');
-});
+      // Estado de la aplicación
+      let orders = [];
+      let currentStatusFilter = 'Todos';
+      let currentSort = 'time-desc';
+      let searchQuery = '';
 
-// ---------- lista por tienda / coordinador ----------
-function openList(type,id){
-  const o=orders.find(x=>x.id===id);if(!o)return;
-  lctx={type,value:o[type]};$('#lsort').value='fd';refreshList();$('#lm').showModal();
-}
-function refreshList(){
-  if(!lctx||!$('#lm').open)return;
-  const {type,value}=lctx,s=$('#lsort').value;
-  const l=orders.filter(o=>o[type]===value);
-  l.sort((a,b)=>s==='fd'?b.creado-a.creado:s==='fa'?a.creado-b.creado:s==='az'?a.ticket.localeCompare(b.ticket,'es',{numeric:true}):b.ticket.localeCompare(a.ticket,'es',{numeric:true}));
-  $('#lt').textContent=(type==='tienda'?'Tienda: ':'Coordinador: ')+value+' ('+l.length+')';
-  $('#ll').innerHTML=l.map(o=>`<div class="lrow" style="--c:var(--s-${o.estatus})"><div class="top"><button class="tk" data-act="edit" data-id="${o.id}">${h(o.ticket)}</button><span class="badge">${h(o.estatus)}</span></div>
-  <div>${h(o.equipo)} · ${h(type==='tienda'?o.coordinador:o.tienda)}</div><div>${h(o.falla)}</div><div class="ts">${fecha(o.creado)}</div></div>`).join('')||'<div class="empty">Sin órdenes.</div>';
-}
-$('#lsort').addEventListener('change',refreshList);
+      // Estado del modal de agrupación (Tienda / Coordinador)
+      let activeGroupType = null; // 'tienda' | 'coordinador'
+      let activeGroupValue = '';
+      let activeGroupSort = 'time-desc';
 
-// ---------- acciones ----------
-document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-act]');if(!b)return;
-  const a=b.dataset.act,id=b.dataset.id,o=orders.find(x=>x.id===id);
-  if(a==='nuevo')openForm();
-  else if(a==='edit'){$('#lm').close();openForm(id)}
-  else if(a==='tienda')openList('tienda',id);
-  else if(a==='coord')openList('coordinador',id);
-  else if(a==='filtro'){filtro=b.dataset.k;render()}
-  else if(a==='close')b.closest('dialog').close();
-  else if(a==='copy'&&o)copy(o[b.dataset.f],LABELS[b.dataset.f]+' copiado');
-  else if(a==='copyall'&&o)copy(Object.keys(LABELS).map(k=>LABELS[k]+': '+o[k]).join('\n'),'Orden copiada');
-  else if(a==='bulk'){
-    const l=orders.filter(x=>x.estatus===b.dataset.s).sort((x,y)=>x.creado-y.creado);
-    if(!l.length){toast('No hay órdenes '+(b.dataset.s==='Abierto'?'abiertas':'pendientes'));return}
-    copy(l.map(line).join('\n'),l.length+' copiadas');
-  }
-});
-$('#q').addEventListener('input',render);
-document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
+      // Referencias DOM
+      const ordersListEl = document.getElementById('ordersList');
+      const searchInput = document.getElementById('searchInput');
+      const btnClearSearch = document.getElementById('btnClearSearch');
+      const statusTabs = document.getElementById('statusTabs');
+      const sortButtons = document.getElementById('sortButtons');
+      const totalStorageCount = document.getElementById('totalStorageCount');
 
-// ---------- exportar / importar ----------
-$('#exp').addEventListener('click',()=>{
-  const blob=new Blob([JSON.stringify({app:'ordenes-servicio',version:1,exportado:new Date().toISOString(),ordenes:orders},null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='ordenes-servicio-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  toast('Respaldo exportado');
-});
-$('#imp').addEventListener('click',()=>$('#file').click());
-$('#file').addEventListener('change',async e=>{
-  const f=e.target.files[0];e.target.value='';if(!f)return;
-  try{
-    const d=JSON.parse(await f.text()),arr=Array.isArray(d)?d:d.ordenes;
-    if(!Array.isArray(arr))throw 0;
-    const s=v=>String(v??'').slice(0,5000);
-    const clean=arr.filter(o=>o&&o.ticket).map(o=>({id:s(o.id)||uid(),creado:Number(o.creado)||Date.now(),editado:o.editado?Number(o.editado):undefined,
-      ticket:s(o.ticket),tienda:s(o.tienda),estatus:ESTATUS.includes(o.estatus)?o.estatus:'Abierto',equipo:s(o.equipo),coordinador:s(o.coordinador),falla:s(o.falla),observaciones:s(o.observaciones)}));
-    if(!confirm('Se combinarán '+clean.length+' órdenes con las actuales (si el ID coincide, se actualiza). ¿Continuar?'))return;
-    const m=new Map(orders.map(o=>[o.id,o]));clean.forEach(o=>m.set(o.id,o));
-    orders=[...m.values()];save();render();toast('Datos importados');
-  }catch(_){toast('Archivo JSON no válido')}
-});
+      // Botones superiores de copiado masivo
+      const btnCopyAllAbiertos = document.getElementById('btnCopyAllAbiertos');
+      const btnCopyAllPendientes = document.getElementById('btnCopyAllPendientes');
+      const countBulkAbiertos = document.getElementById('countBulkAbiertos');
+      const countBulkPendientes = document.getElementById('countBulkPendientes');
 
-render();
-if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));
-})();
-</script>
+      // Modal Formulario
+      const orderModal = document.getElementById('orderModal');
+      const orderForm = document.getElementById('orderForm');
+      const orderModalTitle = document.getElementById('orderModalTitle');
+      const orderIdInput = document.getElementById('orderIdInput');
+      const ticketInput = document.getElementById('ticketInput');
+      const tiendaInput = document.getElementById('tiendaInput');
+      const estatusInput = document.getElementById('estatusInput');
+      const equipoInput = document.getElementById('equipoInput');
+      const coordinadorInput = document.getElementById('coordinadorInput');
+      const fallaInput = document.getElementById('fallaInput');
+      const observacionesInput = document.getElementById('observacionesInput');
+      const autofillBadge = document.getElementById('autofillBadge');
+      const timestampPreview = document.getElementById('timestampPreview');
+      const btnDeleteOrder = document.getElementById('btnDeleteOrder');
+
+      // Modal Grupo (Tienda / Coordinador)
+      const groupModal = document.getElementById('groupModal');
+      const groupModalTitle = document.getElementById('groupModalTitle');
+      const groupSubtitle = document.getElementById('groupSubtitle');
+      const groupOrdersList = document.getElementById('groupOrdersList');
+      const groupSortButtons = document.getElementById('groupSortButtons');
+
+      // Exportar / Importar
+      const btnExportJson = document.getElementById('btnExportJson');
+      const btnImportJson = document.getElementById('btnImportJson');
+      const fileInputJson = document.getElementById('fileInputJson');
+
+      // Inicialización
+      function init() {
+        loadOrders();
+        renderAll();
+        bindEvents();
+        registerSW();
+      }
+
+      function loadOrders() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          orders = raw ? JSON.parse(raw) : [];
+          if (!Array.isArray(orders)) orders = [];
+        } catch (err) {
+          console.error('Error leyendo localStorage:', err);
+          orders = [];
+        }
+      }
+
+      function saveOrders() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+          renderAll();
+          if (groupModal.classList.contains('open')) {
+            renderGroupModalList();
+          }
+        } catch (err) {
+          showToast('⚠️ Error al guardar en almacenamiento local');
+        }
+      }
+
+      // Formatear fecha legible
+      function formatDate(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        return d.toLocaleString('es-MX', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+      }
+
+      // Escapar HTML para prevenir XSS
+      function escapeHTML(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      // Autocompletar Tienda y Coordinador basado en los primeros 5 dígitos exactos del Ticket
+      function handleTicketPrefixAutofill() {
+        const val = ticketInput.value.trim();
+        if (val.length >= 5) {
+          const prefix = val.slice(0, 5);
+          // Buscar la entrada más reciente (por timestamp descendente) cuyos primeros 5 caracteres coincidan exactamente
+          const sortedByLatest = [...orders].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+          const match = sortedByLatest.find(
+            (o) => o.ticket && String(o.ticket).trim().slice(0, 5) === prefix && o.id !== orderIdInput.value
+          );
+          if (match) {
+            tiendaInput.value = match.tienda || '';
+            coordinadorInput.value = match.coordinador || '';
+            autofillBadge.style.display = 'inline';
+            return;
+          }
+        }
+        autofillBadge.style.display = 'none';
+      }
+
+      // Ordenar lista según criterio seleccionado
+      function sortOrdersList(list, sortCriteria) {
+        const copy = [...list];
+        switch (sortCriteria) {
+          case 'time-asc':
+            return copy.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+          case 'alpha-asc':
+            return copy.sort((a, b) =>
+              String(a.tienda || a.ticket || '').localeCompare(String(b.tienda || b.ticket || ''), 'es', { sensitivity: 'base' })
+            );
+          case 'alpha-desc':
+            return copy.sort((a, b) =>
+              String(b.tienda || b.ticket || '').localeCompare(String(a.tienda || a.ticket || ''), 'es', { sensitivity: 'base' })
+            );
+          case 'time-desc':
+          default:
+            return copy.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        }
+      }
+
+      // Filtrar órdenes para la vista principal
+      function getFilteredOrders() {
+        return orders.filter((o) => {
+          // Filtro por estatus
+          if (currentStatusFilter === 'Todos') {
+            if (o.estatus === 'Cerrado' || o.estatus === 'Cancelado') return false;
+          } else if (o.estatus !== currentStatusFilter) {
+            return false;
+          }
+
+          // Filtro por buscador
+          if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const haystack = [
+              o.ticket,
+              o.tienda,
+              o.estatus,
+              o.equipo,
+              o.coordinador,
+              o.falla,
+              o.observaciones,
+              formatDate(o.timestamp)
+            ]
+              .join(' ')
+              .toLowerCase();
+            if (!haystack.includes(q)) return false;
+          }
+
+          return true;
+        });
+      }
+
+      // Actualizar contadores de pestañas y botones superiores
+      function updateCounters() {
+        const counts = {
+          Todos: 0,
+          Abierto: 0,
+          Asignado: 0,
+          Pendiente: 0,
+          Cerrado: 0,
+          Cancelado: 0
+        };
+
+        orders.forEach((o) => {
+          if (counts[o.estatus] !== undefined) {
+            counts[o.estatus]++;
+          }
+          if (o.estatus !== 'Cerrado' && o.estatus !== 'Cancelado') {
+            counts.Todos++;
+          }
+        });
+
+        document.getElementById('tabCountTodos').textContent = counts.Todos;
+        document.getElementById('tabCountAbierto').textContent = counts.Abierto;
+        document.getElementById('tabCountAsignado').textContent = counts.Asignado;
+        document.getElementById('tabCountPendiente').textContent = counts.Pendiente;
+        document.getElementById('tabCountCerrado').textContent = counts.Cerrado;
+        document.getElementById('tabCountCancelado').textContent = counts.Cancelado;
+
+        countBulkAbiertos.textContent = counts.Abierto;
+        countBulkPendientes.textContent = counts.Pendiente;
+        totalStorageCount.textContent = `${orders.length} ${orders.length === 1 ? 'registro guardado' : 'registros guardados'}`;
+      }
+
+      // Generar tarjeta HTML de una orden
+      function createOrderCardHTML(order) {
+        const safeTicket = escapeHTML(order.ticket);
+        const safeTienda = escapeHTML(order.tienda);
+        const safeEquipo = escapeHTML(order.equipo);
+        const safeCoord = escapeHTML(order.coordinador);
+        const safeFalla = escapeHTML(order.falla);
+        const safeObs = escapeHTML(order.observaciones || 'Sin observaciones');
+        const safeStatus = escapeHTML(order.estatus);
+        const prefix = escapeHTML(String(order.ticket || '').slice(0, 5));
+
+        return `
+          <article class="order-card" data-id="${escapeHTML(order.id)}">
+            <div class="card-top">
+              <button
+                type="button"
+                class="ticket-trigger"
+                data-action="edit-ticket"
+                data-id="${escapeHTML(order.id)}"
+                title="Pulsar para editar o eliminar este ticket"
+              >
+                <span>#${safeTicket}</span>
+                <span style="font-size:0.75rem; opacity:0.8;">✎</span>
+              </button>
+
+              <div class="card-top-right">
+                <span class="status-badge status-${safeStatus}">${safeStatus}</span>
+                <button
+                  type="button"
+                  class="btn-copy-card"
+                  data-action="copy-single"
+                  data-id="${escapeHTML(order.id)}"
+                  title="Copiar datos de esta orden"
+                >
+                  📋 Copiar
+                </button>
+              </div>
+            </div>
+
+            <div class="card-grid">
+              <div class="field-item">
+                <span class="field-label">Tienda (ID: ${prefix || 'N/A'})</span>
+                <button
+                  type="button"
+                  class="interactive-chip"
+                  data-action="filter-tienda"
+                  data-value="${safeTienda}"
+                  title="Ver todos los tickets de esta Tienda"
+                >
+                  🏬 ${safeTienda}
+                </button>
+              </div>
+
+              <div class="field-item">
+                <span class="field-label">Coordinador</span>
+                <button
+                  type="button"
+                  class="interactive-chip"
+                  data-action="filter-coordinador"
+                  data-value="${safeCoord}"
+                  title="Ver todos los tickets de este Coordinador"
+                >
+                  👤 ${safeCoord}
+                </button>
+              </div>
+
+              <div class="field-item">
+                <span class="field-label">Equipo</span>
+                <span class="field-value">⚙️ ${safeEquipo}</span>
+              </div>
+            </div>
+
+            <div class="card-details">
+              <div class="detail-row"><strong>Falla:</strong> ${safeFalla}</div>
+              <div class="detail-row"><strong>Observaciones:</strong> ${safeObs}</div>
+            </div>
+
+            <div class="card-footer">
+              <span>🕒 ${formatDate(order.timestamp)}</span>
+              <span>Pulsar #Ticket para editar</span>
+            </div>
+          </article>
+        `;
+      }
+
+      // Renderizar vista principal
+      function renderAll() {
+        updateCounters();
+        const filtered = sortOrdersList(getFilteredOrders(), currentSort);
+
+        if (filtered.length === 0) {
+          ordersListEl.innerHTML = `
+            <div class="empty-state">
+              <p style="font-weight: 600; margin-bottom: 4px;">No hay órdenes de servicio para mostrar</p>
+              <p style="font-size: 0.85rem;">Usa el botón superior "Nueva Orden de Servicio" o ajusta los filtros de búsqueda.</p>
+            </div>
+          `;
+          return;
+        }
+
+        ordersListEl.innerHTML = filtered.map(createOrderCardHTML).join('');
+      }
+
+      // Copiar al portapapeles con fallback seguro
+      async function copyTextToClipboard(text, successMessage) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            const tempArea = document.createElement('textarea');
+            tempArea.value = text;
+            tempArea.style.position = 'fixed';
+            tempArea.style.left = '-9999px';
+            document.body.appendChild(tempArea);
+            tempArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempArea);
+          }
+          showToast(successMessage || '✅ Copiado al portapapeles');
+        } catch (err) {
+          showToast('⚠️ No se pudo copiar automáticamente');
+        }
+      }
+
+      // Copiar orden individual (Ticket, Tienda, Equipo, Coordinador, Falla, Estatus, Observaciones)
+      function copySingleOrder(id) {
+        const order = orders.find((o) => o.id === id);
+        if (!order) return;
+        const text = [
+          `Ticket: ${order.ticket}`,
+          `Tienda: ${order.tienda}`,
+          `Equipo: ${order.equipo}`,
+          `Coordinador: ${order.coordinador}`,
+          `Falla: ${order.falla}`,
+          `Estatus: ${order.estatus}`,
+          `Observaciones: ${order.observaciones || 'N/A'}`
+        ].join('\n');
+
+        copyTextToClipboard(text, `📋 Ticket #${order.ticket} copiado`);
+      }
+
+      // Copiar masivamente por estatus (Ticket, Tienda, Equipo, Coordinador, Falla)
+      function copyBulkByStatus(targetStatus) {
+        const matching = sortOrdersList(
+          orders.filter((o) => o.estatus === targetStatus),
+          currentSort
+        );
+
+        if (matching.length === 0) {
+          showToast(`ℹ️ No hay reportes con estatus "${targetStatus}"`);
+          return;
+        }
+
+        const blocks = matching.map((o, idx) => {
+          return [
+            `[${idx + 1}] Ticket: ${o.ticket}`,
+            `Tienda: ${o.tienda}`,
+            `Equipo: ${o.equipo}`,
+            `Coordinador: ${o.coordinador}`,
+            `Falla: ${o.falla}`
+          ].join('\n');
+        });
+
+        const finalString = `=== REPORTES ${targetStatus.toUpperCase()}S (${matching.length}) ===\n\n` + blocks.join('\n\n-------------------\n\n');
+        copyTextToClipboard(finalString, `📋 ${matching.length} reporte(s) "${targetStatus}" copiados`);
+      }
+
+      // Abrir modal para crear o editar
+      function openOrderModal(editId = null) {
+        orderForm.reset();
+        autofillBadge.style.display = 'none';
+
+        if (editId) {
+          const existing = orders.find((o) => o.id === editId);
+          if (!existing) return;
+          orderModalTitle.textContent = `Editar Ticket #${existing.ticket}`;
+          orderIdInput.value = existing.id;
+          ticketInput.value = existing.ticket;
+          tiendaInput.value = existing.tienda;
+          estatusInput.value = existing.estatus;
+          equipoInput.value = existing.equipo;
+          coordinadorInput.value = existing.coordinador;
+          fallaInput.value = existing.falla;
+          observacionesInput.value = existing.observaciones || '';
+          timestampPreview.textContent = `Marca de tiempo original: ${formatDate(existing.timestamp)}`;
+          btnDeleteOrder.style.display = 'inline-flex';
+        } else {
+          orderModalTitle.textContent = 'Nueva Orden de Servicio';
+          orderIdInput.value = '';
+          estatusInput.value = 'Abierto';
+          equipoInput.value = 'Merrychef';
+          timestampPreview.textContent = `Marca de tiempo automática al guardar: ${formatDate(Date.now())}`;
+          btnDeleteOrder.style.display = 'none';
+        }
+
+        orderModal.classList.add('open');
+        setTimeout(() => ticketInput.focus(), 60);
+      }
+
+      function closeOrderModal() {
+        orderModal.classList.remove('open');
+      }
+
+      // Abrir modal de historial por Tienda o Coordinador
+      function openGroupModal(type, value) {
+        activeGroupType = type;
+        activeGroupValue = value;
+        groupModalTitle.textContent =
+          type === 'tienda' ? `🏬 Tienda: ${value}` : `👤 Coordinador: ${value}`;
+        renderGroupModalList();
+        groupModal.classList.add('open');
+      }
+
+      function renderGroupModalList() {
+        if (!activeGroupType) return;
+        const matching = orders.filter((o) => {
+          const fieldVal = activeGroupType === 'tienda' ? o.tienda : o.coordinador;
+          return String(fieldVal || '').trim().toLowerCase() === String(activeGroupValue || '').trim().toLowerCase();
+        });
+
+        const sorted = sortOrdersList(matching, activeGroupSort);
+        groupSubtitle.textContent = `${sorted.length} ticket(s) encontrado(s)`;
+
+        if (sorted.length === 0) {
+          groupOrdersList.innerHTML = `<div class="empty-state">No quedaron tickets en este grupo.</div>`;
+          return;
+        }
+
+        groupOrdersList.innerHTML = sorted.map(createOrderCardHTML).join('');
+      }
+
+      function closeGroupModal() {
+        groupModal.classList.remove('open');
+        activeGroupType = null;
+      }
+
+      // Mostrar notificación flotante
+      let toastTimer = null;
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2600);
+      }
+
+      // Eventos
+      function bindEvents() {
+        // Abrir nueva orden
+        document.getElementById('btnNewOrder').addEventListener('click', () => openOrderModal(null));
+        document.getElementById('btnCloseOrderModal').addEventListener('click', closeOrderModal);
+        document.getElementById('btnCancelOrderModal').addEventListener('click', closeOrderModal);
+
+        // Autocompletado de primeros 5 dígitos del Ticket
+        ticketInput.addEventListener('input', handleTicketPrefixAutofill);
+
+        // Guardar orden (Nueva o Editada)
+        orderForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const id = orderIdInput.value;
+          const payload = {
+            ticket: ticketInput.value.trim(),
+            tienda: tiendaInput.value.trim(),
+            estatus: estatusInput.value,
+            equipo: equipoInput.value,
+            coordinador: coordinadorInput.value.trim(),
+            falla: fallaInput.value.trim(),
+            observaciones: observacionesInput.value.trim()
+          };
+
+          if (id) {
+            const idx = orders.findIndex((o) => o.id === id);
+            if (idx !== -1) {
+              orders[idx] = {
+                ...orders[idx],
+                ...payload,
+                updatedAt: Date.now()
+              };
+              showToast('✅ Orden actualizada');
+            }
+          } else {
+            const newOrder = {
+              id: 'os_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+              ...payload,
+              timestamp: Date.now()
+            };
+            orders.unshift(newOrder);
+            showToast('✅ Nueva orden registrada');
+          }
+
+          saveOrders();
+          closeOrderModal();
+        });
+
+        // Eliminar orden
+        btnDeleteOrder.addEventListener('click', () => {
+          const id = orderIdInput.value;
+          if (!id) return;
+          const target = orders.find((o) => o.id === id);
+          if (!target) return;
+          if (confirm(`¿Eliminar definitivamente el Ticket #${target.ticket}?`)) {
+            orders = orders.filter((o) => o.id !== id);
+            saveOrders();
+            closeOrderModal();
+            showToast('🗑 Orden eliminada');
+          }
+        });
+
+        // Delegación de clics en tarjetas (lista principal y modal de grupo)
+        function handleCardContainerClick(e) {
+          const btn = e.target.closest('[data-action]');
+          if (!btn) return;
+          const action = btn.getAttribute('data-action');
+
+          if (action === 'edit-ticket') {
+            openOrderModal(btn.getAttribute('data-id'));
+          } else if (action === 'copy-single') {
+            copySingleOrder(btn.getAttribute('data-id'));
+          } else if (action === 'filter-tienda') {
+            openGroupModal('tienda', btn.getAttribute('data-value'));
+          } else if (action === 'filter-coordinador') {
+            openGroupModal('coordinador', btn.getAttribute('data-value'));
+          }
+        }
+
+        ordersListEl.addEventListener('click', handleCardContainerClick);
+        groupOrdersList.addEventListener('click', handleCardContainerClick);
+
+        // Cerrar modal de grupo
+        document.getElementById('btnCloseGroupModal').addEventListener('click', closeGroupModal);
+
+        // Cerrar modales al hacer clic en el fondo oscuro
+        orderModal.addEventListener('click', (e) => {
+          if (e.target === orderModal) closeOrderModal();
+        });
+        groupModal.addEventListener('click', (e) => {
+          if (e.target === groupModal) closeGroupModal();
+        });
+
+        // Buscador en tiempo real
+        searchInput.addEventListener('input', () => {
+          searchQuery = searchInput.value.trim();
+          btnClearSearch.style.display = searchQuery ? 'block' : 'none';
+          renderAll();
+        });
+
+        btnClearSearch.addEventListener('click', () => {
+          searchInput.value = '';
+          searchQuery = '';
+          btnClearSearch.style.display = 'none';
+          renderAll();
+          searchInput.focus();
+        });
+
+        // Pestañas de Estatus
+        statusTabs.addEventListener('click', (e) => {
+          const tab = e.target.closest('.tab-btn');
+          if (!tab) return;
+          statusTabs.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+          tab.classList.add('active');
+          currentStatusFilter = tab.getAttribute('data-status');
+          renderAll();
+        });
+
+        // Botones de ordenamiento principal
+        sortButtons.addEventListener('click', (e) => {
+          const btn = e.target.closest('.sort-btn');
+          if (!btn) return;
+          sortButtons.querySelectorAll('.sort-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSort = btn.getAttribute('data-sort');
+          renderAll();
+        });
+
+        // Botones de ordenamiento dentro del modal de Tienda/Coordinador
+        groupSortButtons.addEventListener('click', (e) => {
+          const btn = e.target.closest('.sort-btn');
+          if (!btn) return;
+          groupSortButtons.querySelectorAll('.sort-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeGroupSort = btn.getAttribute('data-gsort');
+          renderGroupModalList();
+        });
+
+        // Copiado masivo superior (Abiertos y Pendientes)
+        btnCopyAllAbiertos.addEventListener('click', () => copyBulkByStatus('Abierto'));
+        btnCopyAllPendientes.addEventListener('click', () => copyBulkByStatus('Pendiente'));
+
+        // Exportar a archivo JSON local
+        btnExportJson.addEventListener('click', () => {
+          const dataStr = JSON.stringify(orders, null, 2);
+          const blob = new Blob([dataStr], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const dateTag = new Date().toISOString().slice(0, 10);
+          a.href = url;
+          a.download = `respaldo_ordenes_servicio_${dateTag}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('⬇️ Archivo JSON exportado correctamente');
+        });
+
+        // Importar desde archivo JSON local
+        btnImportJson.addEventListener('click', () => fileInputJson.click());
+
+        fileInputJson.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            try {
+              const imported = JSON.parse(event.target.result);
+              if (!Array.isArray(imported)) {
+                throw new Error('Formato inválido');
+              }
+              // Fusión segura por ID o creación de ID si no existe
+              const existingMap = new Map(orders.map((o) => [o.id, o]));
+              imported.forEach((item) => {
+                if (item && item.ticket) {
+                  const safeId = item.id || 'os_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+                  existingMap.set(safeId, {
+                    id: safeId,
+                    ticket: String(item.ticket),
+                    tienda: String(item.tienda || ''),
+                    estatus: item.estatus || 'Abierto',
+                    equipo: item.equipo || 'Otros',
+                    coordinador: String(item.coordinador || ''),
+                    falla: String(item.falla || ''),
+                    observaciones: String(item.observaciones || ''),
+                    timestamp: Number(item.timestamp) || Date.now()
+                  });
+                }
+              });
+              orders = Array.from(existingMap.values());
+              saveOrders();
+              showToast(`⬆️ ${imported.length} registro(s) importados con éxito`);
+            } catch (err) {
+              showToast('⚠️ El archivo seleccionado no es un JSON válido');
+            } finally {
+              fileInputJson.value = '';
+            }
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      // Registro del Service Worker para funcionamiento PWA 100% Offline
+      function registerSW() {
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js').catch(() => {
+              // Silencioso en entorno file:// local, activo en GitHub Pages HTTPS
+            });
+          });
+        }
+      }
+
+      init();
+    })();
+  </script>
 </body>
 </html>
